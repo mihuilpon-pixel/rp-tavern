@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RP Tavern</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,sans-serif;background:#14121c;color:#e8e6f0;height:100vh}
+  .center{display:flex;align-items:center;justify-content:center;height:100vh}
+  .card{background:#1f1c2c;padding:24px;border-radius:12px;width:340px}
+  input,textarea,button{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #3a3550;background:#2a2640;color:#fff;font:inherit}
+  button{background:#7c5cff;border:0;cursor:pointer}
+  button:hover{background:#6a49ee}
+  label.chk{display:flex;gap:8px;align-items:center;font-size:14px}
+  label.chk input{width:auto}
+  #app{display:none;height:100vh}
+  #side{width:260px;background:#1a1726;padding:12px;overflow:auto;float:left;height:100%}
+  #main{margin-left:260px;height:100%;display:flex;flex-direction:column}
+  #msgs{flex:1;overflow:auto;padding:16px}
+  .m{max-width:75%;padding:10px 14px;margin:6px 0;border-radius:12px;white-space:pre-wrap}
+  .user{background:#7c5cff;margin-left:auto}
+  .assistant{background:#2a2640}
+  #bar{display:flex;gap:8px;padding:12px}
+  #bar input{margin:0}#bar button{width:100px;margin:0}
+  .bot{padding:8px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between}
+  .bot:hover,.bot.on{background:#2a2640}
+  .err{color:#ff7b7b;font-size:14px}
+  #newbot{display:none}
+</style>
+</head>
+<body>
+<div class="center" id="login">
+  <div class="card">
+    <h2>Вход</h2>
+    <input id="code" placeholder="Код доступа">
+    <label class="chk"><input type="checkbox" id="adult"> Мне есть 18 лет</label>
+    <button onclick="login()">Войти</button>
+    <div class="err" id="lerr"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div id="side">
+    <button onclick="toggleNew()">+ Новый бот</button>
+    <div id="newbot">
+      <input id="n_name" placeholder="Имя">
+      <textarea id="n_desc" rows="4" placeholder="Описание (внешность, прошлое)"></textarea>
+      <textarea id="n_pers" rows="2" placeholder="Характер"></textarea>
+      <textarea id="n_scen" rows="2" placeholder="Сценарий"></textarea>
+      <textarea id="n_first" rows="2" placeholder="Первое сообщение"></textarea>
+      <button onclick="createBot()">Создать</button>
+      <div class="err" id="nerr"></div>
+    </div>
+    <div id="bots"></div>
+  </div>
+  <div id="main">
+    <div id="msgs"></div>
+    <div id="bar">
+      <input id="text" placeholder="Сообщение..." onkeydown="if(event.key==='Enter')send()">
+      <button onclick="send()">Отправить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Адрес бэкенда: ?api=https://xxx.trycloudflare.com (запоминается), иначе тот же домен
+const qApi = new URLSearchParams(location.search).get('api');
+if (qApi) { localStorage.setItem('apiBase', qApi.replace(/\/$/, '')); history.replaceState(null, '', location.pathname); }
+const API_BASE = localStorage.getItem('apiBase') || '';
+let token = localStorage.getItem('tok'), cur = null;
+const $ = id => document.getElementById(id);
+async function api(url, method='GET', body){
+  const r = await fetch(API_BASE + url,{method,headers:{'Content-Type':'application/json','x-token':token||''},body:body?JSON.stringify(body):undefined});
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok){ if(r.status===401&&token){logout();} throw new Error(j.error||'Ошибка'); }
+  return j;
+}
+async function login(){
+  try{
+    const j = await api('/api/login','POST',{code:$('code').value.trim(),adult:$('adult').checked});
+    token=j.token; localStorage.setItem('tok',token); start();
+  }catch(e){ $('lerr').textContent=e.message; }
+}
+function logout(){ localStorage.removeItem('tok'); token=null; location.reload(); }
+function toggleNew(){ const n=$('newbot'); n.style.display=n.style.display==='block'?'none':'block'; }
+async function loadBots(){
+  const bots = await api('/api/bots');
+  $('bots').innerHTML='';
+  bots.forEach(b=>{
+    const d=document.createElement('div'); d.className='bot'+(cur===b.id?' on':'');
+    d.innerHTML=`<span>${esc(b.name)}</span><span>✕</span>`;
+    d.firstChild.onclick=()=>open(b.id);
+    d.lastChild.onclick=async e=>{e.stopPropagation();await api('/api/bots/'+b.id,'DELETE');if(cur===b.id){cur=null;$('msgs').innerHTML='';}loadBots();};
+    $('bots').appendChild(d);
+  });
+}
+async function createBot(){
+  try{
+    const b = await api('/api/bots','POST',{name:$('n_name').value,description:$('n_desc').value,personality:$('n_pers').value,scenario:$('n_scen').value,first_mes:$('n_first').value});
+    ['n_name','n_desc','n_pers','n_scen','n_first'].forEach(i=>$(i).value='');
+    $('nerr').textContent=''; toggleNew(); await loadBots(); open(b.id);
+  }catch(e){ $('nerr').textContent=e.message; }
+}
+async function open(id){
+  cur=id; loadBots(); $('msgs').innerHTML='';
+  (await api('/api/chat/'+id)).forEach(m=>add(m.role,m.content));
+}
+function add(role,text){
+  const d=document.createElement('div'); d.className='m '+role; d.textContent=text;
+  $('msgs').appendChild(d); $('msgs').scrollTop=1e9; return d;
+}
+async function send(){
+  const t=$('text').value.trim(); if(!t||!cur) return;
+  $('text').value=''; add('user',t); const w=add('assistant','...');
+  try{ w.textContent=(await api('/api/chat/'+cur,'POST',{text:t})).reply; }
+  catch(e){ w.textContent='⚠ '+e.message; }
+  $('msgs').scrollTop=1e9;
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function start(){ $('login').style.display='none'; $('app').style.display='block'; loadBots(); }
+if(token) api('/api/bots').then(start).catch(()=>{});
+</script>
+</body>
+</html>
