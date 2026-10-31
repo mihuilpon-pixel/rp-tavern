@@ -19,6 +19,11 @@
         <label class="field-label" for="code">КОД ДОСТУПА</label><input class="text-field" id="code" type="password" placeholder="Введи свой код" autocomplete="one-time-code" required>
         <p class="error" id="login-error" aria-live="polite"></p><button class="primary wide" type="submit">Войти <span>↗</span></button>
       </form>
+      <section class="tariff-prompt" aria-label="Тарифы доступа">
+        <div class="tariff-prompt-head"><span class="tariff-spark">✦</span><div><b>Нужен код доступа?</b><small>Выбери тариф для ролевых историй</small></div></div>
+        <div class="tariff-quick-prices"><span>День <b>120 ₸</b></span><span>Неделя <b>770 ₸</b></span><span>Месяц <b>3 440 ₸</b></span></div>
+        <button type="button" class="tariff-open" id="tariffs-open">Посмотреть тарифы <span>↗</span></button>
+      </section>
       <button type="button" class="gate-connect" id="api-settings-open">Настроить адрес сервера</button>
     </section><footer class="gate-foot">RP TAVERN · SILLYTAVERN</footer>
   </main>
@@ -60,6 +65,16 @@
     <label class="field-label" for="api-url">АДРЕС API</label><input class="text-field" id="api-url" type="url" placeholder="https://твой-туннель.trycloudflare.com">
     <p class="modal-note warn">Не публикуй открытый сервер без защиты кодом доступа. Настройка сохраняется в этом браузере.</p><div class="modal-actions"><button class="secondary" type="button" data-close="settings-dialog">Отмена</button><button class="primary" type="submit">Сохранить</button></div>
   </form></dialog>
+  <dialog id="tariff-dialog" class="modal tariff-dialog"><section>
+    <div class="modal-head"><div><div class="kicker">ДОСТУП К РОЛЕВЫМ ИСТОРИЯМ</div><h2>Выбери тариф</h2></div><button class="icon-button modal-close" type="button" data-close="tariff-dialog">×</button></div>
+    <p class="muted tariff-lead">Выбери срок доступа. После подтверждения оплаты понадобится код для входа.</p>
+    <div class="tariff-options">
+      <article class="tariff-option"><span class="tariff-period">НА ДЕНЬ</span><strong>120 <small>₸</small></strong><span class="tariff-duration">24 часа доступа</span><button type="button" class="secondary tariff-select" data-tariff="День" data-price="120 ₸">Выбрать</button></article>
+      <article class="tariff-option featured"><span class="tariff-badge">ПОПУЛЯРНЫЙ</span><span class="tariff-period">НА НЕДЕЛЮ</span><strong>770 <small>₸</small></strong><span class="tariff-duration">7 дней доступа</span><button type="button" class="primary tariff-select" data-tariff="Неделя" data-price="770 ₸">Выбрать</button></article>
+      <article class="tariff-option"><span class="tariff-period">НА МЕСЯЦ</span><strong>3 440 <small>₸</small></strong><span class="tariff-duration">30 дней доступа</span><button type="button" class="secondary tariff-select" data-tariff="Месяц" data-price="3 440 ₸">Выбрать</button></article>
+    </div>
+    <p class="tariff-result" id="tariff-result" role="status" aria-live="polite">Онлайн-оплата и автоматическая выдача кода пока не подключены.</p>
+  </section></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="app.js"></script>
 </body></html>
