@@ -143,3 +143,36 @@ body:after{width:330px;height:330px;right:-145px;bottom:-90px;background:#19bdd0
   .empty-state h1{margin:8px 0;font-size:32px}
   .setup-hint{margin-top:12px}
 }
+
+/* A quieter, bookish visual direction with ink, paper and worn copper tones. */
+:root{--bg:#141613;--panel:#1b1d19;--panel2:#22241f;--text:#e8e4d9;--muted:#aaa99d;--dim:#85867b;--line:#373a31;--violet:#c78367;--violet2:#b46f58;--rose:#dc9b7d;--cyan:#aeb39a;--gold:#d4b77d}
+body{background:#141613;background-image:linear-gradient(145deg,#171914,#121411 65%,#191713);color:#e8e4d9}
+body:before,body:after{display:none}
+.gate,.app{background:none}
+.gate-card{border:1px solid #77776755;border-left:3px solid #bd7a5e;border-radius:5px;background:#1a1c18;box-shadow:0 20px 55px #08090688;backdrop-filter:none}
+.brand{letter-spacing:.16em}.brand-mark{border-color:#b77a61;color:#d99b7e;background:none;box-shadow:none}
+.kicker,.field-label,.header-label,.side-section-title{color:#bd8a70}
+.gate h1,.empty-state h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;letter-spacing:-.035em;line-height:.98}
+.gate h1 em,.empty-state h1 em{background:none;color:#cb8d70;-webkit-text-fill-color:currentColor}
+.gate h1{font-size:clamp(48px,6vw,66px)}
+.muted{color:#aaa99d}.age-label{color:#dedbd0}.age-label input{accent-color:#bd7a5e}
+.text-field{border-color:#47483d;border-radius:4px;background:#121410;color:#eee9de}.text-field:focus{border-color:#bb8066;box-shadow:0 0 0 2px #bb806625}
+.primary{border-radius:4px;background:#b8755b;color:#171410;box-shadow:none}.primary:hover{filter:brightness(1.08);transform:none}
+.secondary{border-radius:4px;background:#24261f;border-color:#48493e;color:#ddd8cb}.secondary:hover{border-color:#b8755b}
+.gate-connect{color:#c38b70}.gate-foot{color:#78796e}
+.app{background:transparent}.sidebar{background:#171914;border-right:1px solid #36382f;box-shadow:none;backdrop-filter:none}
+.side-head{border-color:#36382f}.side-section-title{color:#a09e91}.side-section-title span{color:#cb8d70}
+.bot-item{border-radius:4px}.bot-item:hover{background:#ffffff08;border-color:#ffffff12;transform:none}.bot-item.active{background:#272820;border-color:#55463b;box-shadow:inset 2px 0 #bd7a5e}
+.bot-avatar{background:#514038;box-shadow:none;color:#edc8a8}.bot-avatar.alt{background:#36413c;box-shadow:none;color:#c8d1be}
+.add-small{border-color:#665044;border-radius:4px;color:#d2a18a}.add-small:hover{background:#bd7a5e16;border-color:#bd7a5e;color:#ead3c1}
+.connection,.user-chip{border-color:#36382f}.connection-dot.online{background:#a7b58e;box-shadow:none}.settings-button{border-radius:4px;color:#a9a89e}.settings-button:hover{background:#ffffff08;color:#e3d5c6}
+.user-avatar{background:#383c32;color:#d4c6ad}.app-header{background:#171914;border-color:#36382f;backdrop-filter:none}.header-label{color:#ac866d}.header-title{color:#e8e4d9}
+.workspace:before,.workspace:after{display:none}.orb{border-color:#7b5948;background:#28241e;color:#d5aa82;box-shadow:none}
+.empty-state .kicker{color:#bd8a70}.empty-state h1{color:#e8e4d9}.empty-state>p{color:#aaa99d}.setup-hint{color:#8e8e82}.setup-hint span{border-color:#67675b;color:#c79275}
+.chat-person{border-color:#393a32}.chat-person h2{color:#eee9de}.online-label{color:#a3a297}.online-label i{background:#aeb39a;box-shadow:none}
+.message{border-radius:4px 12px 12px 12px;border-color:#393a32;background:#20221d;box-shadow:none;color:#e8e4d9}.message.user{border-color:#705342;background:#41332c;color:#f0e5d9;box-shadow:none}.message.assistant{border-left:2px solid #bb8066}.message.system{border-color:#665043;background:#2b211d;color:#ddc0ad}.message .sender{color:#d0a084}
+.composer{border-color:#414238;border-radius:5px;background:#1b1d19;box-shadow:none;backdrop-filter:none}.composer textarea{color:#e8e4d9}.composer textarea::placeholder{color:#85867b}.send-button{border-radius:4px;background:#b8755b;box-shadow:none}.send-button:hover{transform:none;filter:brightness(1.08)}.composer-note{color:#828378}
+.modal{border-radius:6px;border-color:#51463b;background:#1c1e19;box-shadow:0 24px 70px #0009;backdrop-filter:none}.modal-head h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:29px;color:#eee9de}.modal-note{color:#aaa99d}.modal-note.warn{color:#d8a18e}
+.toast{border-radius:4px;border-color:#645045;background:#29251f;box-shadow:0 8px 24px #0008;color:#eee9de}
+.tariff-prompt{border-color:#4c4337;border-radius:5px;background:#20211b}.tariff-prompt-head{color:#e5dfd1}.tariff-prompt-head small{color:#a8a698}.tariff-spark{color:#c5896c}.tariff-quick-prices span{border-radius:3px;background:#171914;color:#aaa99d}.tariff-quick-prices b{color:#e6d7c1}.tariff-open{border-color:#675144;border-radius:4px;background:#403027;color:#e4c4ad}.tariff-open:hover{background:#4b382d}
+.tariff-option{border-color:#45463b;border-radius:5px;background:#20221d}.tariff-option.featured{border-color:#99745b;background:#2a251e}.tariff-period{color:#b59a7f}.tariff-option strong{color:#eee9de}.tariff-duration{color:#aaa99d}.tariff-badge{border-radius:2px;background:#b8755b;color:#171410}.tariff-result{border-color:#46463b;border-radius:4px;background:#171914;color:#c2bfb2}.tariff-result a{color:#d59878}.tariff-result a:hover{color:#ecc99e}
