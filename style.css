@@ -198,3 +198,31 @@ body{font-family:'Nunito Sans',sans-serif;background:#202522;background-image:li
 .composer{background:#282d28;border-color:#535c52}.composer textarea{color:#e7e5dc}.composer textarea::placeholder{color:#a0a69c}.send-button{background:#c49a73;color:#211f1a}
 .modal{background:#282d28;border-color:#586052}.modal-head h2{color:#e7e5dc}.modal-note{color:#b2b6ab}.toast{background:#353a34;border-color:#626b5e;color:#e7e5dc}
 .tariff-prompt{background:#30352f;border-color:#555f50}.tariff-prompt-head{color:#e4e1d7}.tariff-prompt-head small{color:#b2b7ac}.tariff-spark{color:#d0a17c}.tariff-quick-prices span{background:#262b26;color:#c2c5bb}.tariff-quick-prices b{color:#e7dcc7}.tariff-open{background:#3a3e35;border-color:#69604d;color:#e2d2bc}.tariff-option{background:#30352f;border-color:#51594f}.tariff-option.featured{background:#39372f;border-color:#8f7857}.tariff-period{color:#c5ab89}.tariff-option strong{color:#e7e5dc}.tariff-duration{color:#b8bcb1}.tariff-result{background:#252a25;border-color:#4d554b;color:#c7c9bf}.tariff-result a{color:#d6ae88}.delete-character{color:#d8a58c;border-color:#745c4e}
+@media(max-width:540px){
+  .gate h1{font-size:clamp(32px,9.2vw,42px);line-height:1.08}
+  .gate-card{background:#282c28;border-color:#5a6257;border-left-color:#c28d68}
+  .gate-card>.muted{font-size:13px}
+  .field-label{font-size:9px}
+  .age-label{font-size:12px}
+  .tariff-prompt-head b{font-size:13px}
+  .tariff-prompt-head small{font-size:11px}
+  .tariff-quick-prices span{background:#262b26;color:#c2c5bb;font-size:10px}
+  .tariff-quick-prices b{font-size:12px;color:#e7dcc7}
+  .tariff-open{font-size:12px}
+  .empty-state h1{font-size:clamp(32px,9vw,38px);line-height:1.08}
+  .empty-state>p{font-size:13px}
+  .message{font-size:14px;line-height:1.65}
+  .composer-note{font-size:10px}
+  .modal-head h2{font-size:23px}
+  .tariff-option strong{font-size:28px}
+  .tariff-duration,.tariff-result{font-size:12px}
+}
+@media(max-width:360px){
+  .gate{padding-left:12px;padding-right:12px}
+  .gate-card{padding-left:17px;padding-right:17px}
+  .gate h1{font-size:32px}
+  .tariff-prompt{padding:11px}
+  .tariff-quick-prices{gap:3px}
+  .tariff-quick-prices span{padding-left:2px;padding-right:2px;font-size:9px}
+  .tariff-quick-prices b{font-size:11px}
+}
