@@ -179,3 +179,22 @@ body:before,body:after{display:none}
 .tariff-option{border-color:#45463b;border-radius:5px;background:#20221d}.tariff-option.featured{border-color:#99745b;background:#2a251e}.tariff-period{color:#b59a7f}.tariff-option strong{color:#eee9de}.tariff-duration{color:#aaa99d}.tariff-badge{border-radius:2px;background:#b8755b;color:#171410}.tariff-result{border-color:#46463b;border-radius:4px;background:#171914;color:#c2bfb2}.tariff-result a{color:#d59878}.tariff-result a:hover{color:#ecc99e}
 .delete-character{border-color:#76534a;border-radius:4px;background:transparent;color:#d19a83}.delete-character:hover{border-color:#b8755b;background:#b8755b18;color:#edc6ae}
 @media(max-width:540px){.delete-character{min-width:44px;min-height:44px;padding:0 9px;font-size:10px}}
+
+/* Tuned for comfortable reading in dim rooms while keeping enough daylight contrast. */
+:root{--bg:#202522;--panel:#272c28;--panel2:#303630;--text:#e2e1d8;--muted:#b6bbb0;--dim:#999f95;--line:#444b43;--violet:#c99d73;--violet2:#b98762;--rose:#d4a985;--cyan:#a8bda9;--gold:#d4b982}
+body{font-family:'Nunito Sans',sans-serif;background:#202522;background-image:linear-gradient(145deg,#242925,#1d211e 68%,#25251f);color:#e2e1d8}
+.gate h1,.empty-state h1,.modal-head h2{font-family:'Nunito',sans-serif;font-weight:700;letter-spacing:-.045em}
+.gate h1{font-size:clamp(42px,5.3vw,58px);line-height:1.08}.empty-state h1{line-height:1.08}
+.gate-card{background:#282c28;border-color:#5a6257;border-left-color:#c28d68;box-shadow:0 20px 55px #10130f88}
+.gate h1 em,.empty-state h1 em{color:#d0a17c}
+.muted,.empty-state>p{color:#b8bcb1}.field-label{color:#c5a585}.age-label{color:#e0dfd5}
+.text-field{background:#1d211e;border-color:#545b51;color:#e7e5dc}.text-field::placeholder{color:#989d93}.text-field:focus{border-color:#c49a73;box-shadow:0 0 0 2px #c49a7328}
+.primary{background:#c49a73;color:#211f1a}.primary:hover{filter:brightness(1.07)}.secondary{background:#343a34;border-color:#596156;color:#e0e1d7}.secondary:hover{border-color:#c49a73}
+.gate-connect,.kicker,.header-label,.side-section-title{color:#c49a73}.brand-mark{color:#d5aa82;border-color:#c49a7380}
+.sidebar{background:#222723;border-color:#41483f}.app-header{background:#242925;border-color:#41483f}.header-title{color:#e2e1d8}
+.bot-item.active{background:#343a33;border-color:#5c6458;box-shadow:inset 2px 0 #c49a73}.bot-avatar{background:#645342;color:#f0d6b8}.bot-avatar.alt{background:#465b50;color:#d0dfcf}
+.empty-state h1{color:#e3e1d8}.orb{background:#343a32;border-color:#6d7969;color:#d8b184}.online-label{color:#b5b9af}.online-label i{background:#a8bda9}
+.message{background:#303630;border-color:#454d44;color:#e2e1d8}.message.user{background:#454037;border-color:#70634d;color:#ece8dc}.message.assistant{border-left-color:#c49a73}.message.system{background:#39302a;border-color:#71604d;color:#e1c7ae}.message .sender{color:#d5b391}
+.composer{background:#282d28;border-color:#535c52}.composer textarea{color:#e7e5dc}.composer textarea::placeholder{color:#a0a69c}.send-button{background:#c49a73;color:#211f1a}
+.modal{background:#282d28;border-color:#586052}.modal-head h2{color:#e7e5dc}.modal-note{color:#b2b6ab}.toast{background:#353a34;border-color:#626b5e;color:#e7e5dc}
+.tariff-prompt{background:#30352f;border-color:#555f50}.tariff-prompt-head{color:#e4e1d7}.tariff-prompt-head small{color:#b2b7ac}.tariff-spark{color:#d0a17c}.tariff-quick-prices span{background:#262b26;color:#c2c5bb}.tariff-quick-prices b{color:#e7dcc7}.tariff-open{background:#3a3e35;border-color:#69604d;color:#e2d2bc}.tariff-option{background:#30352f;border-color:#51594f}.tariff-option.featured{background:#39372f;border-color:#8f7857}.tariff-period{color:#c5ab89}.tariff-option strong{color:#e7e5dc}.tariff-duration{color:#b8bcb1}.tariff-result{background:#252a25;border-color:#4d554b;color:#c7c9bf}.tariff-result a{color:#d6ae88}.delete-character{color:#d8a58c;border-color:#745c4e}
