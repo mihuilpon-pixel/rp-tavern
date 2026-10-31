@@ -1,11 +1,17 @@
 // RP Tavern frontend connected to ../server.js API.
 const $ = selector => document.querySelector(selector);
+const DEFAULT_API_BASE = 'https://vacancies-invision-tracked-collaborative.trycloudflare.com';
+const API_DEFAULT_REVISION = 'quick-tunnel-2026-11-01-2';
+if (localStorage.getItem('rp-api-default-revision') !== API_DEFAULT_REVISION) {
+  localStorage.setItem('rp-api-base', DEFAULT_API_BASE);
+  localStorage.setItem('rp-api-default-revision', API_DEFAULT_REVISION);
+}
 const apiQuery = new URLSearchParams(location.search).get('api');
 if (apiQuery) {
   localStorage.setItem('rp-api-base', apiQuery.replace(/\/$/, ''));
   history.replaceState(null, '', location.pathname + location.hash);
 }
-let apiBase = localStorage.getItem('rp-api-base') || '';
+let apiBase = localStorage.getItem('rp-api-base') || DEFAULT_API_BASE;
 let token = sessionStorage.getItem('rp-session-token') || '';
 let bots = [];
 let currentBot = null;
