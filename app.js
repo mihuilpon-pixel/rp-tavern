@@ -98,7 +98,14 @@ function appendMessage(role, text, botName = '') {
 function openDialog(id) { $(id).showModal(); }
 $('#tariffs-open').addEventListener('click', () => openDialog('#tariff-dialog'));
 document.querySelectorAll('.tariff-select').forEach(button => button.addEventListener('click', () => {
-  $('#tariff-result').textContent = `Выбран тариф «${button.dataset.tariff}» — ${button.dataset.price}. Для получения кода нужно подтвердить оплату у администратора. Онлайн-оплата пока не подключена.`;
+  const result = $('#tariff-result');
+  result.replaceChildren(document.createTextNode(`Выбран тариф «${button.dataset.tariff}» — ${button.dataset.price}. Чтобы подключить его и получить код доступа, напиши мне в Telegram: `));
+  const contact = document.createElement('a');
+  contact.href = 'https://t.me/pipirkaser';
+  contact.target = '_blank';
+  contact.rel = 'noopener noreferrer';
+  contact.textContent = '@pipirkaser';
+  result.append(contact, document.createTextNode('.'));
 }));
 ['#add-bot','#add-bot-side','#empty-create'].forEach(selector => $(selector).addEventListener('click', () => openDialog('#bot-dialog')));
 document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => $('#' + button.dataset.close).close()));
