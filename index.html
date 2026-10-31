@@ -45,7 +45,7 @@
       <section class="workspace">
         <div id="empty-state" class="empty-state"><div class="orb">✦</div><div class="kicker">ТВОЯ СЛЕДУЮЩАЯ ИСТОРИЯ</div><h1>Кого встретим<br><em>сегодня?</em></h1><p>Создай персонажа или выбери историю слева.<br>Боты и переписка будут связаны с SillyTavern на твоём ПК.</p><button class="primary" id="empty-create">＋ Добавить бота</button><div class="setup-hint"><span>i</span> Если сервер находится на твоём ПК, опубликуй его через Cloudflare Tunnel.</div></div>
         <section id="chat-view" class="chat-view hidden">
-          <div class="chat-person"><span class="avatar bot-avatar" id="chat-avatar">✦</span><div><h2 id="chat-name"></h2><span class="online-label"><i></i> Ролевая история</span></div></div>
+          <div class="chat-person"><span class="avatar bot-avatar" id="chat-avatar">✦</span><div><h2 id="chat-name"></h2><span class="online-label"><i></i> Ролевая история</span></div><button class="delete-character" id="delete-bot" type="button" hidden>Удалить бота</button></div>
           <div id="messages" class="messages"></div><form id="message-form" class="composer"><textarea id="message-input" rows="1" placeholder="Напиши сообщение..." aria-label="Сообщение"></textarea><button class="send-button" type="submit" aria-label="Отправить">↑</button></form><div class="composer-note">Не отправляй личные данные. Сообщения передаются на сервер, указанный в настройках.</div>
         </section>
       </section>

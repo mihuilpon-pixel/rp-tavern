@@ -77,6 +77,7 @@ function showEmpty() {
 async function selectBot(id) {
   const bot = bots.find(item => item.id === id); if (!bot) return;
   currentBot = id; renderBots(); $('#empty-state').classList.add('hidden'); $('#chat-view').classList.remove('hidden');
+  $('#delete-bot').hidden = !bot.stName;
   $('#chat-name').textContent = bot.name; $('#chat-avatar').textContent = (bot.name || '?').slice(0,1).toUpperCase();
   $('#chat-avatar').className = `avatar bot-avatar ${bots.indexOf(bot)%2?'alt':''}`; $('#header-title').textContent = bot.name;
   $('#messages').replaceChildren();
@@ -94,6 +95,22 @@ function appendMessage(role, text, botName = '') {
   node.append(document.createTextNode(String(text ?? ''))); $('#messages').append(node); $('#messages').scrollTop = $('#messages').scrollHeight;
   return node;
 }
+
+$('#delete-bot').addEventListener('click', async () => {
+  const bot = bots.find(item => item.id === currentBot);
+  if (!bot?.stName) return;
+  if (!window.confirm(`Удалить «${bot.name}»? Карточка персонажа и её переписки также будут удалены из SillyTavern.`)) return;
+  const button = $('#delete-bot'); button.disabled = true;
+  try {
+    await api(`/api/bots/${encodeURIComponent(bot.id)}`, 'DELETE');
+    bots = bots.filter(item => item.id !== bot.id);
+    currentBot = null;
+    if (bots.length) await selectBot(bots[0].id); else showEmpty();
+    toast('Бот и его переписки удалены.');
+  } catch (error) {
+    toast(error.message);
+  } finally { button.disabled = false; }
+});
 
 function openDialog(id) { $(id).showModal(); }
 $('#tariffs-open').addEventListener('click', () => openDialog('#tariff-dialog'));
