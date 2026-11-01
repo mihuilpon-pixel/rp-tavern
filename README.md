@@ -12,7 +12,15 @@ RP Tavern is a responsive role-play chat site for SillyTavern characters. GitHub
    node server.js
    ```
 
-   On first launch, the server creates `config.local.json` and prints the access code in this window. Keep this file private.
+   On first launch, the server creates `config.local.json` and prints the access keys in this window. Keep this file private. To issue more keys, add strings to its `accessCodes` list and restart Node.js. Removing a key from that list revokes it and signs out its holders.
+
+   To add more keys later, edit only the `accessCodes` field in `config.local.json`, for example:
+
+   ```json
+   "accessCodes": ["RPT-your-first-key", "RPT-your-second-key"]
+   ```
+
+   Keep the other settings in the file. Never put real keys in the public repository.
 3. In a second PowerShell window, start Cloudflare Tunnel:
 
    ```powershell

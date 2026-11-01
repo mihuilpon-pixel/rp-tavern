@@ -49,8 +49,20 @@ function loadConfig(configPath = CONFIG_PATH) {
     if (fs.existsSync(configPath)) {
         config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     }
-    if (!config.accessCode) {
-        config.accessCode = crypto.randomBytes(6).toString('base64url');
+    const legacyCode = typeof config.accessCode === 'string' ? config.accessCode.trim() : '';
+    let accessCodes = Array.isArray(config.accessCodes)
+        ? [...new Set(config.accessCodes.filter((code) => typeof code === 'string').map((code) => code.trim()).filter(Boolean))]
+        : (legacyCode ? [legacyCode] : []);
+    if (!accessCodes.length) {
+        accessCodes = [crypto.randomBytes(9).toString('base64url')];
+        created = true;
+    }
+    if (JSON.stringify(config.accessCodes) !== JSON.stringify(accessCodes)) {
+        config.accessCodes = accessCodes;
+        created = true;
+    }
+    if (!accessCodes.includes(legacyCode)) {
+        config.accessCode = accessCodes[0];
         created = true;
     }
     if (!config.secret) {
@@ -72,14 +84,18 @@ function originAllowed(origin, patterns) {
 
 // ---------------------------------------------------------------- auth
 
-function signToken(config) {
-    const payload = Buffer.from(JSON.stringify({ exp: Date.now() + TOKEN_TTL_MS })).toString('base64url');
-    return `${payload}.${tokenSignature(config, payload)}`;
+function configuredAccessCodes(config) {
+    const codes = Array.isArray(config.accessCodes) ? config.accessCodes : [config.accessCode];
+    return [...new Set(codes.filter((code) => typeof code === 'string').map((code) => code.trim()).filter(Boolean))];
 }
 
-// The access code is part of the key, so changing the code signs everyone out.
-function tokenSignature(config, payload) {
-    return crypto.createHmac('sha256', `${config.secret}:${config.accessCode}`).update(payload).digest('base64url');
+function signToken(config, accessCode = config.accessCode) {
+    const payload = Buffer.from(JSON.stringify({ exp: Date.now() + TOKEN_TTL_MS })).toString('base64url');
+    return `${payload}.${tokenSignature(config, payload, accessCode)}`;
+}
+
+function tokenSignature(config, payload, accessCode = config.accessCode) {
+    return crypto.createHmac('sha256', `${config.secret}:${accessCode}`).update(payload).digest('base64url');
 }
 
 function safeEqual(a, b) {
@@ -91,7 +107,7 @@ function safeEqual(a, b) {
 function tokenValid(config, token) {
     if (typeof token !== 'string' || !token.includes('.')) return false;
     const [payload, signature] = token.split('.');
-    if (!safeEqual(signature, tokenSignature(config, payload))) return false;
+    if (!configuredAccessCodes(config).some((code) => safeEqual(signature, tokenSignature(config, payload, code)))) return false;
     try {
         return JSON.parse(Buffer.from(payload, 'base64url').toString()).exp > Date.now();
     } catch {
@@ -593,11 +609,14 @@ function createApp(config) {
         if (pathname === '/api/login' && req.method === 'POST') {
             checkLoginLimit(req);
             const { code } = await readJson(req);
-            if (typeof code !== 'string' || !safeEqual(code.trim(), config.accessCode)) {
+            const accessCode = typeof code === 'string'
+                ? configuredAccessCodes(config).find((candidate) => safeEqual(code.trim(), candidate))
+                : null;
+            if (!accessCode) {
                 recordLoginFail(req);
                 throw new ApiError(403, 'BAD_CODE', 'Неверный код доступа.');
             }
-            return sendJson(res, 200, { token: signToken(config) });
+            return sendJson(res, 200, { token: signToken(config, accessCode) });
         }
 
         if (pathname === '/api/session' && req.method === 'GET') {
@@ -671,7 +690,9 @@ function main() {
     // Loopback only: the outside world gets in through the tunnel, not the local network.
     server.listen(port, '127.0.0.1', async () => {
         console.log(`RP Tavern: http://localhost:${port}`);
-        console.log(`Код доступа: ${config.accessCode}${created ? '  (создан и сохранён в config.local.json)' : ''}`);
+        console.log(`Коды доступа (${configuredAccessCodes(config).length}):`);
+        configuredAccessCodes(config).forEach((code, index) => console.log(`  ${index + 1}. ${code}`));
+        console.log(`Добавляйте и удаляйте ключи в config.local.json, затем перезапустите сервер.${created ? ' Конфигурация создана или обновлена.' : ''}`);
         console.log(`Туннель:     cloudflared tunnel --url http://127.0.0.1:${port}`);
         try {
             await st.ping();
