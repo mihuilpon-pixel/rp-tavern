@@ -2,7 +2,7 @@
     "name": "rp-tavern",
     "version": "1.0.0",
     "private": true,
-    "description": "RP Tavern: role-play chats with AI characters through a local SillyTavern",
+    "description": "RP Tavern: role-play chats with AI characters through a local AI service",
     "main": "server.js",
     "scripts": {
         "start": "node server.js",

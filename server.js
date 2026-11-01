@@ -187,7 +187,7 @@ function createSillyTavernClient(config) {
             signal: AbortSignal.timeout(timeoutMs),
         });
         if (response.status === 401 || response.status === 403) {
-            throw new ApiError(502, 'ST_FORBIDDEN', 'SillyTavern отклонила подключение: проверьте её логин или белый список адресов.');
+            throw new ApiError(502, 'ST_FORBIDDEN', 'Локальный ИИ-сервис отклонил подключение: проверьте авторизацию и разрешённые адреса.');
         }
         if (!response.ok) throw new Error(`csrf-token: HTTP ${response.status}`);
         return response;
@@ -267,7 +267,7 @@ function resolveBackend(settings, overrides = {}) {
             maxTokens: overrides.maxTokens ?? settings.amount_gen ?? 400,
         };
     }
-    throw new ApiError(502, 'ST_UNSUPPORTED', `В SillyTavern выбран API «${mainApi}». RP Tavern работает с Chat Completion и Text Completion: переключите API в SillyTavern.`);
+    throw new ApiError(502, 'ST_UNSUPPORTED', `Выбран неподдерживаемый режим «${mainApi}». Проверьте настройки генерации.`);
 }
 
 // ---------------------------------------------------------------- prompt
@@ -349,7 +349,7 @@ function buildRequest(backend, parsed) {
         };
         if (backend.source === 'custom') {
             if (!backend.customUrl) {
-                throw new ApiError(502, 'ST_NOT_CONFIGURED', 'В SillyTavern не указан адрес Custom API.');
+                throw new ApiError(502, 'ST_NOT_CONFIGURED', 'Не указан адрес пользовательского API.');
             }
             body.custom_url = backend.customUrl;
             body.custom_include_body = oai.custom_include_body;
@@ -360,7 +360,7 @@ function buildRequest(backend, parsed) {
     }
 
     if (!backend.server) {
-        throw new ApiError(502, 'ST_NOT_CONFIGURED', 'В SillyTavern не указан адрес сервера Text Completion.');
+        throw new ApiError(502, 'ST_NOT_CONFIGURED', 'Не указан адрес сервера генерации текста.');
     }
     const transcript = history
         .map((m) => `${m.role === 'user' ? userName : character.name}: ${m.content}`)
@@ -410,7 +410,7 @@ function errorFromPayload(data) {
 
 function backendError(detail) {
     const suffix = detail ? ` Ответ: ${String(detail).slice(0, 300)}` : '';
-    return new ApiError(502, 'ST_BACKEND', `SillyTavern не смогла получить ответ от модели. Проверьте API-ключ и модель в SillyTavern.${suffix}`);
+    return new ApiError(502, 'ST_BACKEND', `Не удалось получить ответ от модели. Проверьте API-ключ и настройки модели.${suffix}`);
 }
 
 async function readCompletion(response, onText) {
@@ -505,7 +505,7 @@ function createJobStore() {
         run(job).then(
             () => {
                 if (!job.text.trim()) {
-                    finish(job, 'error', { code: 'EMPTY', message: 'Модель вернула пустой ответ. Попробуйте ещё раз или проверьте настройки модели в SillyTavern.' });
+                    finish(job, 'error', { code: 'EMPTY', message: 'Модель вернула пустой ответ. Попробуйте ещё раз или проверьте её настройки.' });
                 } else {
                     finish(job, 'done');
                 }
@@ -514,7 +514,7 @@ function createJobStore() {
                 if (job.controller.signal.aborted) return;
                 finish(job, 'error', {
                     code: err instanceof ApiError ? err.code : 'ST_DOWN',
-                    message: err instanceof ApiError ? err.message : 'SillyTavern перестала отвечать. Проверьте, что она запущена.',
+                    message: err instanceof ApiError ? err.message : 'Локальный ИИ-сервис перестал отвечать. Убедитесь, что он запущен.',
                 });
             },
         );
@@ -616,7 +616,7 @@ function createApp(config, { configPath = null } = {}) {
             backend = resolveBackend(await st.readSettings(), config.generation || {});
         } catch (err) {
             if (err instanceof ApiError) throw err;
-            throw new ApiError(503, 'ST_DOWN', 'SillyTavern не отвечает. Запустите её на компьютере владельца.');
+            throw new ApiError(503, 'ST_DOWN', 'Локальный ИИ-сервис не отвечает. Убедитесь, что он запущен на компьютере владельца.');
         }
         const { route, body } = buildRequest(backend, parsed);
 
@@ -831,9 +831,9 @@ function main() {
         console.log(`Туннель:     cloudflared tunnel --url http://127.0.0.1:${port}`);
         try {
             await st.ping();
-            console.log(`SillyTavern: на связи (${st.baseUrl})`);
+            console.log(`Локальный ИИ-сервис: на связи (${st.baseUrl})`);
         } catch {
-            console.log(`SillyTavern: НЕ отвечает на ${st.baseUrl}. Запустите её, чаты до этого работать не будут.`);
+            console.log(`Локальный ИИ-сервис не отвечает на ${st.baseUrl}. Запустите его, чтобы чаты работали.`);
         }
     });
 }

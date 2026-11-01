@@ -1,6 +1,6 @@
 // The conversation. Messages are patched in place, never re-rendered as a whole,
 // so long histories stay fast and scroll position survives every update.
-import { cancelJob, checkConnection, describeLink, getLink, onLinkChange, readJob, startGeneration } from '../api.js?v=hide-online-status-1';
+import { cancelJob, checkConnection, describeLink, getLink, onLinkChange, readJob, startGeneration } from '../api.js?v=remove-provider-brand-1';
 import { createChat, deleteChat, getCharacter, getChat, listChats, makeMessage, messageText, saveChat } from '../store.js';
 import { confirmDialog, el, fillNames, formatMessage, icon, iconButton, isTouch, openSheet, plural, portrait, reducedMotion, timeAgo, toast } from '../ui.js';
 import { go } from '../main.js';
@@ -366,11 +366,11 @@ export async function renderChat(chatId) {
         const link = getLink();
         const networkTitle = error.code === 'NETWORK' ? describeLink(link).title : null;
         const titles = {
-            ST_DOWN: 'SillyTavern выключена',
+            ST_DOWN: 'ИИ-сервис не отвечает',
             ST_BACKEND: 'Модель не ответила',
-            ST_FORBIDDEN: 'SillyTavern отказала в доступе',
-            ST_UNSUPPORTED: 'Неподходящий режим SillyTavern',
-            ST_NOT_CONFIGURED: 'SillyTavern не настроена',
+            ST_FORBIDDEN: 'Нет доступа к ИИ-сервису',
+            ST_UNSUPPORTED: 'Неподходящий режим генерации',
+            ST_NOT_CONFIGURED: 'ИИ-сервис не настроен',
             BUSY: 'Сервер занят',
             TIMEOUT: 'Слишком долгий ответ',
             EMPTY: 'Пустой ответ',

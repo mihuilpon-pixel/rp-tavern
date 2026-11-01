@@ -1,11 +1,11 @@
-import { getToken, normalizeServerUrl, setServer, startHeartbeat, verifySession } from './api.js?v=hide-online-status-1';
+import { getToken, normalizeServerUrl, setServer, startHeartbeat, verifySession } from './api.js?v=remove-provider-brand-1';
 import { seedIfFirstRun } from './store.js';
 import { el, reducedMotion, toast } from './ui.js';
 import { ageConfirmed, renderDoor } from './views/door.js';
 import { renderHall } from './views/hall.js';
 import { renderEditor } from './views/editor.js';
 import { renderChat } from './views/chat.js';
-import { renderSettings } from './views/settings.js?v=hide-online-status-1';
+import { renderSettings } from './views/settings.js?v=remove-provider-brand-1';
 
 const app = document.getElementById('app');
 let cleanup = null;

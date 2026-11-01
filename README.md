@@ -1,10 +1,10 @@
 # RP Tavern
 
-RP Tavern is a responsive role-play chat site for SillyTavern characters. GitHub Pages serves the public interface; the Node.js bridge on the owner's PC sends generation requests to SillyTavern. The redesigned interface includes a character hall, profile and character editor, saved chats, message editing and deletion, alternate replies, and swipe-to-regenerate on phones.
+RP Tavern is a responsive role-play chat site for AI characters. GitHub Pages serves the public interface; a Node.js bridge on the owner's PC sends generation requests to the locally configured AI service. The interface includes a character hall, profile and character editor, saved chats, message editing and deletion, alternate replies, and swipe-to-regenerate on phones.
 
 ## Start the local services on Windows
 
-1. Start SillyTavern and connect its API and model. The default address is `http://127.0.0.1:8000`.
+1. Start the local AI service and connect its API and model. The default address is `http://127.0.0.1:8000`.
 2. In PowerShell, start the bridge from the project folder:
 
    ```powershell
@@ -42,4 +42,4 @@ The repository's GitHub Pages source should be set to branch `main`, folder `/ (
 
 ## Data and privacy
 
-Characters and chat history are stored in IndexedDB in each visitor's browser; they do not automatically sync between devices. Generation requests go through the local Node.js bridge to SillyTavern and its configured model. The server does not save chat text.
+Characters and chat history are stored in IndexedDB in each visitor's browser; they do not automatically sync between devices. Generation requests go through the local Node.js bridge to the configured AI service and model. The server does not save chat text.

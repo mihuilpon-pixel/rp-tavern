@@ -1,5 +1,5 @@
 // Pieces shared by several screens.
-import { checkConnection, describeLink, getLink, onLinkChange } from '../api.js?v=hide-online-status-1';
+import { checkConnection, describeLink, getLink, onLinkChange } from '../api.js?v=remove-provider-brand-1';
 import { el, icon, openSheet } from '../ui.js';
 
 export function linkStatusPanel(close) {
@@ -19,7 +19,7 @@ export function linkStatusPanel(close) {
         title.hidden = connected;
         text.hidden = connected;
         const reached = { ok: 4, st: 3, node: 2, tunnel: 1, unset: 1, offline: 0, checking: 0 }[link.state] ?? 0;
-        chain.replaceChildren(...['Сайт', 'Туннель', 'Node.js', 'SillyTavern'].map((label, index) => el(`li.chain-link${reached > index ? '.on' : ''}`, label)));
+        chain.replaceChildren(...['Сайт', 'Туннель', 'Node.js', 'ИИ-модель'].map((label, index) => el(`li.chain-link${reached > index ? '.on' : ''}`, label)));
     };
     paint(getLink());
     off = onLinkChange(paint);

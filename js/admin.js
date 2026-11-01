@@ -1,6 +1,6 @@
-import { adminLogin, endAdminSession, getAdminSessions, getServer } from './api.js?v=hide-online-status-1';
-import { el, toast, confirmDialog } from './ui.js?v=hide-online-status-1';
-import { topBar } from './views/common.js?v=hide-online-status-1';
+import { adminLogin, endAdminSession, getAdminSessions, getServer } from './api.js?v=remove-provider-brand-1';
+import { el, toast, confirmDialog } from './ui.js?v=remove-provider-brand-1';
+import { topBar } from './views/common.js?v=remove-provider-brand-1';
 
 const root = document.getElementById('admin-app');
 const TOKEN_KEY = 'rpt.adminToken';
