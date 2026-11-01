@@ -1,7 +1,7 @@
 'use strict';
 // Dev stand-in for AI service: same CSRF session, settings and streaming contract, canned replies.
 // It also serves docs/ on a second port, which makes the site cross-origin like on GitHub Pages.
-//   node test/mock-sillytavern.js [stPort=8011] [sitePort=5500]
+//   node tools/mock-ai-service.js [servicePort=8011] [sitePort=5500]
 // Change the behaviour with POST /__mode {"mode":"ok"|"fail"|"slow"|"empty"}.
 const http = require('node:http');
 const fs = require('node:fs');
