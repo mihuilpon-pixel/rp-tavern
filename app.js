@@ -40,8 +40,6 @@ async function api(path, method = 'GET', body) {
 
 function enterApp() {
   $('#gate').classList.add('hidden'); $('#app').classList.remove('hidden');
-  $('#connection-dot').classList.add('online'); $('#connection-label').textContent = 'Сервер сайта';
-  $('#connection-detail').textContent = 'Ответы через SillyTavern';
 }
 async function login(code, adult) {
   if (!adult) throw new Error('Подтверди, что тебе исполнилось 18 лет.');
