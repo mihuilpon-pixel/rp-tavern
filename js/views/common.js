@@ -1,5 +1,5 @@
 // Pieces shared by several screens.
-import { checkConnection, describeLink, getLink, onLinkChange } from '../api.js?v=admin-panel-1';
+import { checkConnection, describeLink, getLink, onLinkChange } from '../api.js?v=hide-online-status-1';
 import { el, icon, openSheet } from '../ui.js';
 
 export function linkStatusPanel(close) {
@@ -13,8 +13,11 @@ export function linkStatusPanel(close) {
             return;
         }
         const info = describeLink(link);
-        title.textContent = info.title;
-        text.textContent = info.text;
+        const connected = link.state === 'ok';
+        title.textContent = connected ? '' : info.title;
+        text.textContent = connected ? '' : info.text;
+        title.hidden = connected;
+        text.hidden = connected;
         const reached = { ok: 4, st: 3, node: 2, tunnel: 1, unset: 1, offline: 0, checking: 0 }[link.state] ?? 0;
         chain.replaceChildren(...['Сайт', 'Туннель', 'Node.js', 'SillyTavern'].map((label, index) => el(`li.chain-link${reached > index ? '.on' : ''}`, label)));
     };
@@ -49,7 +52,7 @@ export function linkLamp() {
     const paint = (link) => {
         button.dataset.state = link.state;
         const info = describeLink(link);
-        label.textContent = link.state === 'ok' ? 'На связи' : link.state === 'checking' ? 'Проверяем' : 'Нет связи';
+        label.textContent = link.state === 'ok' ? '' : link.state === 'checking' ? 'Проверяем' : 'Нет связи';
         button.title = `${info.title}. ${info.text}`;
         button.setAttribute('aria-label', button.title);
     };
