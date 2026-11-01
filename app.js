@@ -97,16 +97,16 @@ function renderBots() {
   }
 }
 function showEmpty() {
+  $('#app').classList.remove('chat-open');
   currentBot = null; $('#chat-view').classList.add('hidden'); $('#empty-state').classList.remove('hidden');
   $('#header-title').textContent = 'Ролевые истории';
-  $('#open-sidebar').textContent = '☰'; $('#open-sidebar').setAttribute('aria-label', 'Открыть меню выбора бота');
   if (window.innerWidth <= 720) $('#sidebar').classList.add('open');
   renderBots();
 }
 async function selectBot(id) {
   const bot = bots.find(item => item.id === id); if (!bot) return;
+  $('#app').classList.toggle('chat-open', window.innerWidth <= 720);
   currentBot = id; renderBots(); $('#empty-state').classList.add('hidden'); $('#chat-view').classList.remove('hidden');
-  $('#open-sidebar').textContent = '←'; $('#open-sidebar').setAttribute('aria-label', 'Вернуться к выбору бота');
   $('#delete-bot').hidden = !bot.stName;
   $('#chat-name').textContent = bot.name;
   $('#chat-avatar').className = `avatar bot-avatar ${bots.indexOf(bot)%2?'alt':''}${bot.avatar?' has-photo':''}`;
@@ -286,10 +286,9 @@ function logout(reload = true) {
   if (reload) location.reload(); else { $('#app').classList.add('hidden'); $('#gate').classList.remove('hidden'); }
 }
 $('#logout').addEventListener('click', () => logout());
-$('#open-sidebar').addEventListener('click', () => {
-  if (window.innerWidth <= 720 && currentBot) {
-    $('#chat-view').classList.add('hidden'); $('#empty-state').classList.add('hidden');
-  }
+$('#open-sidebar').addEventListener('click', () => $('#sidebar').classList.add('open'));
+$('#chat-back').addEventListener('click', () => {
+  $('#chat-view').classList.add('hidden'); $('#empty-state').classList.add('hidden');
   $('#sidebar').classList.add('open');
 });
 $('#close-sidebar').addEventListener('click', () => {

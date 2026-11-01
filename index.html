@@ -6,7 +6,7 @@
   <title>RP Tavern — ролевые истории</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=mobile-nav-1">
+  <link rel="stylesheet" href="style.css?v=mobile-nav-2">
 </head>
 <body>
   <main id="gate" class="gate">
@@ -45,7 +45,7 @@
       <section class="workspace">
         <div id="empty-state" class="empty-state"><div class="orb">✦</div><div class="kicker">ТВОЯ СЛЕДУЮЩАЯ ИСТОРИЯ</div><h1>Кого встретим<br><em>сегодня?</em></h1><p>Создай персонажа или выбери историю слева.<br>Боты и переписка будут связаны с SillyTavern на твоём ПК.</p><button class="primary" id="empty-create">＋ Добавить бота</button><div class="setup-hint"><span>i</span> Если сервер находится на твоём ПК, опубликуй его через Cloudflare Tunnel.</div></div>
         <section id="chat-view" class="chat-view hidden">
-          <div class="chat-person"><span class="avatar bot-avatar" id="chat-avatar">✦</span><div><h2 id="chat-name"></h2><span class="online-label"><i></i> Ролевая история</span></div><button class="delete-character" id="delete-bot" type="button" hidden>Удалить бота</button></div>
+          <div class="chat-person"><button class="chat-back" id="chat-back" type="button" aria-label="Назад к выбору бота">←</button><span class="avatar bot-avatar" id="chat-avatar">✦</span><div class="chat-person-title"><h2 id="chat-name"></h2><span class="online-label"><i></i> Ролевая история</span></div><button class="delete-character" id="delete-bot" type="button" hidden>Удалить бота</button></div>
           <div id="messages" class="messages"></div><form id="message-form" class="composer"><textarea id="message-input" rows="1" placeholder="Напиши сообщение..." aria-label="Сообщение"></textarea><button class="send-button" type="submit" aria-label="Отправить или пропустить ход">↑</button></form><div class="composer-note">Enter или стрелка без текста — пропустить ход. Не отправляй личные данные.</div>
         </section>
       </section>
@@ -79,5 +79,5 @@
     <p class="tariff-result" id="tariff-result" role="status" aria-live="polite">Онлайн-оплата и автоматическая выдача кода пока не подключены.</p>
   </section></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=mobile-nav-1"></script>
+  <script src="app.js?v=mobile-nav-2"></script>
 </body></html>
