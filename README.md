@@ -21,6 +21,8 @@ RP Tavern is a responsive role-play chat site for SillyTavern characters. GitHub
    ```
 
    Keep the other settings in the file. Never put real keys in the public repository.
+
+   A one-use tester key goes in `oneTimeAccessCodes`. It disappears from that list after a successful login; the tester's session remains valid until it expires.
 3. In a second PowerShell window, start Cloudflare Tunnel:
 
    ```powershell

@@ -61,6 +61,20 @@ function loadConfig(configPath = CONFIG_PATH) {
         config.accessCodes = accessCodes;
         created = true;
     }
+    const oneTimeAccessCodes = Array.isArray(config.oneTimeAccessCodes)
+        ? [...new Set(config.oneTimeAccessCodes.filter((code) => typeof code === 'string').map((code) => code.trim()).filter(Boolean))]
+        : [];
+    if (JSON.stringify(config.oneTimeAccessCodes) !== JSON.stringify(oneTimeAccessCodes)) {
+        config.oneTimeAccessCodes = oneTimeAccessCodes;
+        created = true;
+    }
+    const redeemedAccessCodes = Array.isArray(config.redeemedAccessCodes)
+        ? config.redeemedAccessCodes.filter((entry) => entry && typeof entry.code === 'string' && Number(entry.expiresAt) > Date.now())
+        : [];
+    if (JSON.stringify(config.redeemedAccessCodes) !== JSON.stringify(redeemedAccessCodes)) {
+        config.redeemedAccessCodes = redeemedAccessCodes;
+        created = true;
+    }
     if (!accessCodes.includes(legacyCode)) {
         config.accessCode = accessCodes[0];
         created = true;
@@ -89,6 +103,19 @@ function configuredAccessCodes(config) {
     return [...new Set(codes.filter((code) => typeof code === 'string').map((code) => code.trim()).filter(Boolean))];
 }
 
+function oneTimeAccessCodes(config) {
+    return Array.isArray(config.oneTimeAccessCodes)
+        ? [...new Set(config.oneTimeAccessCodes.filter((code) => typeof code === 'string').map((code) => code.trim()).filter(Boolean))]
+        : [];
+}
+
+function tokenAccessCodes(config) {
+    const redeemed = Array.isArray(config.redeemedAccessCodes)
+        ? config.redeemedAccessCodes.filter((entry) => entry && Number(entry.expiresAt) > Date.now()).map((entry) => entry.code)
+        : [];
+    return [...new Set([...configuredAccessCodes(config), ...oneTimeAccessCodes(config), ...redeemed])];
+}
+
 function signToken(config, accessCode = config.accessCode) {
     const payload = Buffer.from(JSON.stringify({ exp: Date.now() + TOKEN_TTL_MS })).toString('base64url');
     return `${payload}.${tokenSignature(config, payload, accessCode)}`;
@@ -107,7 +134,7 @@ function safeEqual(a, b) {
 function tokenValid(config, token) {
     if (typeof token !== 'string' || !token.includes('.')) return false;
     const [payload, signature] = token.split('.');
-    if (!configuredAccessCodes(config).some((code) => safeEqual(signature, tokenSignature(config, payload, code)))) return false;
+    if (!tokenAccessCodes(config).some((code) => safeEqual(signature, tokenSignature(config, payload, code)))) return false;
     try {
         return JSON.parse(Buffer.from(payload, 'base64url').toString()).exp > Date.now();
     } catch {
@@ -479,7 +506,7 @@ function createJobStore() {
 
 // ---------------------------------------------------------------- http
 
-function createApp(config) {
+function createApp(config, { configPath = null } = {}) {
     const st = createSillyTavernClient(config);
     const jobStore = createJobStore();
     const fails = new Map();
@@ -609,12 +636,26 @@ function createApp(config) {
         if (pathname === '/api/login' && req.method === 'POST') {
             checkLoginLimit(req);
             const { code } = await readJson(req);
-            const accessCode = typeof code === 'string'
-                ? configuredAccessCodes(config).find((candidate) => safeEqual(code.trim(), candidate))
+            const normalizedCode = typeof code === 'string' ? code.trim() : '';
+            const loginCodes = [...configuredAccessCodes(config), ...oneTimeAccessCodes(config)];
+            const accessCode = normalizedCode
+                ? loginCodes.find((candidate) => safeEqual(normalizedCode, candidate))
                 : null;
             if (!accessCode) {
                 recordLoginFail(req);
                 throw new ApiError(403, 'BAD_CODE', 'Неверный код доступа.');
+            }
+            if (oneTimeAccessCodes(config).includes(accessCode)) {
+                const nextOneTime = oneTimeAccessCodes(config).filter((candidate) => candidate !== accessCode);
+                const nextRedeemed = [...(config.redeemedAccessCodes || []).filter((entry) => Number(entry?.expiresAt) > Date.now()), {
+                    code: accessCode,
+                    expiresAt: Date.now() + TOKEN_TTL_MS,
+                }];
+                if (configPath) {
+                    fs.writeFileSync(configPath, JSON.stringify({ ...config, oneTimeAccessCodes: nextOneTime, redeemedAccessCodes: nextRedeemed }, null, 4) + '\n');
+                }
+                config.oneTimeAccessCodes = nextOneTime;
+                config.redeemedAccessCodes = nextRedeemed;
             }
             return sendJson(res, 200, { token: signToken(config, accessCode) });
         }
@@ -677,7 +718,7 @@ function createApp(config) {
 function main() {
     const { config, created } = loadConfig();
     const port = Number(process.env.PORT || config.port || 3000);
-    const { server, st, jobStore } = createApp(config);
+    const { server, st, jobStore } = createApp(config, { configPath: CONFIG_PATH });
     setInterval(jobStore.sweep, 60 * 1000).unref();
 
     server.on('error', (err) => {
@@ -693,6 +734,10 @@ function main() {
         console.log(`Коды доступа (${configuredAccessCodes(config).length}):`);
         configuredAccessCodes(config).forEach((code, index) => console.log(`  ${index + 1}. ${code}`));
         console.log(`Добавляйте и удаляйте ключи в config.local.json, затем перезапустите сервер.${created ? ' Конфигурация создана или обновлена.' : ''}`);
+        if (oneTimeAccessCodes(config).length) {
+            console.log(`One-time test codes (${oneTimeAccessCodes(config).length}):`);
+            oneTimeAccessCodes(config).forEach((code, index) => console.log(`  ${index + 1}. ${code}`));
+        }
         console.log(`Туннель:     cloudflared tunnel --url http://127.0.0.1:${port}`);
         try {
             await st.ping();
