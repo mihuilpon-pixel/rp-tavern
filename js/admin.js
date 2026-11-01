@@ -1,6 +1,6 @@
-import { adminLogin, endAdminSession, getAdminSessions, getServer } from './api.js?v=remove-provider-brand-1';
-import { el, toast, confirmDialog } from './ui.js?v=remove-provider-brand-1';
-import { topBar } from './views/common.js?v=remove-provider-brand-1';
+import { adminLogin, endAdminSession, getAdminSessions, getServer } from './api.js?v=halloween-spider-1';
+import { el, toast, confirmDialog } from './ui.js?v=halloween-spider-1';
+import { topBar } from './views/common.js?v=halloween-spider-1';
 
 const root = document.getElementById('admin-app');
 const TOKEN_KEY = 'rpt.adminToken';

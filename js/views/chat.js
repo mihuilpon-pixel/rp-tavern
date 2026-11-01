@@ -1,6 +1,6 @@
 // The conversation. Messages are patched in place, never re-rendered as a whole,
 // so long histories stay fast and scroll position survives every update.
-import { cancelJob, checkConnection, describeLink, getLink, onLinkChange, readJob, startGeneration } from '../api.js?v=remove-provider-brand-1';
+import { cancelJob, checkConnection, describeLink, getLink, onLinkChange, readJob, startGeneration } from '../api.js?v=halloween-spider-1';
 import { createChat, deleteChat, getCharacter, getChat, listChats, makeMessage, messageText, saveChat } from '../store.js';
 import { confirmDialog, el, fillNames, formatMessage, icon, iconButton, isTouch, openSheet, plural, portrait, reducedMotion, timeAgo, toast } from '../ui.js';
 import { go } from '../main.js';

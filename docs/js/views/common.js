@@ -1,5 +1,5 @@
 // Pieces shared by several screens.
-import { checkConnection, describeLink, getLink, onLinkChange } from '../api.js?v=remove-provider-brand-1';
+import { checkConnection, describeLink, getLink, onLinkChange } from '../api.js?v=halloween-spider-1';
 import { el, icon, openSheet } from '../ui.js';
 
 export function linkStatusPanel(close) {

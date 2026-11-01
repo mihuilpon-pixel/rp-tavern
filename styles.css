@@ -556,3 +556,31 @@ textarea.field-input { resize: vertical; font-family: var(--font-read); font-siz
     .admin-session { padding: 14px 12px; }
     .admin-session .btn { width: 100%; }
 }
+
+/* A tiny seasonal guest, tucked into the upper-right corner. */
+.halloween-spider {
+    position: fixed;
+    z-index: 6;
+    top: 0;
+    right: max(12px, env(safe-area-inset-right));
+    width: 48px;
+    height: 78px;
+    pointer-events: none;
+    transform-origin: 50% 0;
+    animation: spider-sway 4.8s ease-in-out infinite;
+}
+.halloween-spider svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.spider-thread { fill: none; stroke: rgba(229, 210, 183, 0.65); stroke-width: 1.5; }
+.spider-legs { fill: none; stroke: #25151a; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.spider-body, .spider-head { fill: #38212b; stroke: #c78351; stroke-width: 1.7; }
+.spider-eye { fill: #ffb264; filter: drop-shadow(0 0 2px #ff9a4e); }
+@keyframes spider-sway {
+    0%, 100% { transform: rotate(-4deg); }
+    50% { transform: rotate(5deg); }
+}
+@media (max-width: 520px) {
+    .halloween-spider { width: 38px; height: 66px; right: max(8px, env(safe-area-inset-right)); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .halloween-spider { animation: none; }
+}

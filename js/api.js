@@ -140,7 +140,7 @@ export async function checkConnection(server = getServer()) {
         const data = await response.json();
         if (run !== checkRun) return link;
         if (data.service !== 'rp-tavern') setLink('node');
-        else if (data.sillyTavern === 'up') setLink('ok');
+        else if (data.engine === 'up') setLink('ok');
         else setLink('st', data.message);
     } catch {
         const state = await classifyFailure(server);

@@ -1,5 +1,5 @@
 'use strict';
-// RP Tavern bridge: site (GitHub Pages) -> Cloudflare Tunnel -> this server -> SillyTavern.
+// RP Tavern bridge: site (GitHub Pages) -> Cloudflare Tunnel -> this server -> AI service.
 // No dependencies: `node server.js` is all it takes. Secrets live in config.local.json, never in docs/.
 
 const http = require('node:http');
@@ -167,12 +167,12 @@ function adminTokenValid(config, token) {
     }
 }
 
-// ---------------------------------------------------------------- SillyTavern client
+// ---------------------------------------------------------------- AI service client
 
-function createSillyTavernClient(config) {
-    const baseUrl = (config.sillyTavernUrl || 'http://127.0.0.1:8000').replace(/\/+$/, '');
-    const basicAuth = config.sillyTavernBasicAuth
-        ? `Basic ${Buffer.from(`${config.sillyTavernBasicAuth.user}:${config.sillyTavernBasicAuth.password}`).toString('base64')}`
+function createAIServiceClient(config) {
+    const baseUrl = (config.aiServiceUrl || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+    const basicAuth = config.aiServiceBasicAuth
+        ? `Basic ${Buffer.from(`${config.aiServiceBasicAuth.user}:${config.aiServiceBasicAuth.password}`).toString('base64')}`
         : null;
     let session = null;
     let settingsCache = null;
@@ -215,7 +215,7 @@ function createSillyTavernClient(config) {
             body: JSON.stringify(body),
             signal,
         });
-        // SillyTavern restarted: the old session cookie is no longer valid.
+        // AI service restarted: the old session cookie is no longer valid.
         if (response.status === 403 && retry) {
             session = null;
             return post(route, body, signal, false);
@@ -236,7 +236,7 @@ function createSillyTavernClient(config) {
     return { baseUrl, ping, post, readSettings };
 }
 
-// Matches getChatCompletionModel() in SillyTavern's public/scripts/openai.js.
+// Matches getChatCompletionModel() in AI service's public/scripts/openai.js.
 const MODEL_KEY_BY_SOURCE = { makersuite: 'google_model', vertexai: 'vertexai_model', custom: 'custom_model' };
 
 function resolveBackend(settings, overrides = {}) {
@@ -383,7 +383,7 @@ function buildRequest(backend, parsed) {
     };
 }
 
-// Each provider SillyTavern proxies has its own response shape.
+// Each provider AI service proxies has its own response shape.
 function extractText(data) {
     const choice = data.choices?.[0];
     if (choice) {
@@ -532,7 +532,7 @@ function createJobStore() {
 // ---------------------------------------------------------------- http
 
 function createApp(config, { configPath = null } = {}) {
-    const st = createSillyTavernClient(config);
+    const st = createAIServiceClient(config);
     const jobStore = createJobStore();
     const fails = new Map();
     const sessions = new Map();
@@ -596,15 +596,15 @@ function createApp(config, { configPath = null } = {}) {
     }
 
     async function handleHealth(res) {
-        let sillyTavern = 'up';
+        let engine = 'up';
         let message = null;
         try {
             await st.ping();
         } catch (err) {
-            sillyTavern = err instanceof ApiError ? 'forbidden' : 'down';
+            engine = err instanceof ApiError ? 'forbidden' : 'down';
             message = err instanceof ApiError ? err.message : null;
         }
-        sendJson(res, 200, { ok: true, service: 'rp-tavern', sillyTavern, message });
+        sendJson(res, 200, { ok: true, service: 'rp-tavern', engine, message });
     }
 
     async function handleGenerate(req, res) {

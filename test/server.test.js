@@ -15,8 +15,8 @@ function listen(server) {
     });
 }
 
-// Behaves like SillyTavern: CSRF session, settings, streamed generation.
-function fakeSillyTavern(behaviour) {
+// Behaves like AI service: CSRF session, settings, streamed generation.
+function fakeAIService(behaviour) {
     const calls = [];
     const server = http.createServer((req, res) => {
         let raw = '';
@@ -50,9 +50,9 @@ function streamWords(res, words) {
 }
 
 async function setup(behaviour, t, overrides = {}) {
-    const fake = fakeSillyTavern(behaviour);
+    const fake = fakeAIService(behaviour);
     const stPort = await listen(fake.server);
-    const config = { accessCode: 'open-sesame', secret: 'test-secret', sillyTavernUrl: `http://127.0.0.1:${stPort}`, ...overrides };
+    const config = { accessCode: 'open-sesame', secret: 'test-secret', aiServiceUrl: `http://127.0.0.1:${stPort}`, ...overrides };
     const { server } = createApp(config);
     const port = await listen(server);
     t.after(() => {
@@ -107,7 +107,7 @@ test('protected routes need a valid token and a changed code invalidates it', as
     assert.equal((await fetch(`${base}/api/session`, { headers: { Authorization: `Bearer ${token}` } })).status, 200);
     assert.equal((await fetch(`${base}/api/session`, { headers: { Authorization: `Bearer ${token}x` } })).status, 401);
 
-    const other = createApp({ accessCode: 'another-code', secret: 'test-secret', sillyTavernUrl: 'http://127.0.0.1:9' });
+    const other = createApp({ accessCode: 'another-code', secret: 'test-secret', aiServiceUrl: 'http://127.0.0.1:9' });
     const port = await listen(other.server);
     t.after(() => other.server.close());
     assert.equal((await fetch(`http://127.0.0.1:${port}/api/session`, { headers: { Authorization: `Bearer ${token}` } })).status, 401);
@@ -137,7 +137,7 @@ test('admin can list active sessions and revoke one', async (t) => {
     assert.equal((await (await fetch(`${base}/api/admin/sessions`, { headers })).json()).sessions.length, 0);
 });
 
-test('generation streams through a job and the request reaches SillyTavern', async (t) => {
+test('generation streams through a job and the request reaches AI service', async (t) => {
     const { base, login, calls } = await setup({ generate: (req, res) => streamWords(res, ['Добро ', 'пожаловать']) }, t);
     const token = await login();
     const started = await startJob(base, token);
@@ -196,13 +196,13 @@ test('cancel aborts the job and keeps it from completing', async (t) => {
     assert.equal((await (await fetch(`${base}/api/jobs/${jobId}`, { headers })).json()).status, 'cancelled');
 });
 
-test('health tells apart a stopped SillyTavern', async (t) => {
-    const { server } = createApp({ accessCode: 'x', secret: 'y', sillyTavernUrl: 'http://127.0.0.1:9' });
+test('health tells apart a stopped AI service', async (t) => {
+    const { server } = createApp({ accessCode: 'x', secret: 'y', aiServiceUrl: 'http://127.0.0.1:9' });
     const port = await listen(server);
     t.after(() => server.close());
     const health = await (await fetch(`http://127.0.0.1:${port}/api/health`)).json();
     assert.equal(health.ok, true);
-    assert.equal(health.sillyTavern, 'down');
+    assert.equal(health.engine, 'down');
 
     const down = await (await fetch(`http://127.0.0.1:${port}/api/login`, { method: 'POST', body: JSON.stringify({ code: 'x' }) })).json();
     const started = await startJob(`http://127.0.0.1:${port}`, down.token);
@@ -247,8 +247,8 @@ test('text completion backend gets a transcript prompt and stop strings', () => 
     assert.deepEqual(body.stop, ['\nЛео:']);
 });
 
-test('unsupported SillyTavern API gives a clear message', () => {
-    assert.throws(() => resolveBackend({ main_api: 'novel' }), /Chat Completion/);
+test('unsupported AI service API gives a clear message', () => {
+    assert.throws(() => resolveBackend({ main_api: 'novel' }), /неподдерживаемый режим/);
 });
 
 test('response shapes of different providers are understood', () => {

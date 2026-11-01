@@ -1,5 +1,5 @@
 'use strict';
-// Dev stand-in for SillyTavern: same CSRF session, settings and streaming contract, canned replies.
+// Dev stand-in for AI service: same CSRF session, settings and streaming contract, canned replies.
 // It also serves docs/ on a second port, which makes the site cross-origin like on GitHub Pages.
 //   node test/mock-sillytavern.js [stPort=8011] [sitePort=5500]
 // Change the behaviour with POST /__mode {"mode":"ok"|"fail"|"slow"|"empty"}.
@@ -73,7 +73,7 @@ const st = http.createServer((req, res) => {
         return res.end('not found');
     });
 });
-st.listen(stPort, '127.0.0.1', () => console.log(`mock SillyTavern: http://127.0.0.1:${stPort}`));
+st.listen(stPort, '127.0.0.1', () => console.log(`mock AI service: http://127.0.0.1:${stPort}`));
 
 const site = http.createServer((req, res) => {
     const relative = decodeURIComponent(new URL(req.url, 'http://x').pathname).replace(/^\/+/, '') || 'index.html';

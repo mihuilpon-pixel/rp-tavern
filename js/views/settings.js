@@ -1,4 +1,4 @@
-import { checkConnection, describeLink, getLink, getServer, logoutSession, normalizeServerUrl, onLinkChange, setServer, setToken } from '../api.js?v=remove-provider-brand-1';
+import { checkConnection, describeLink, getLink, getServer, logoutSession, normalizeServerUrl, onLinkChange, setServer, setToken } from '../api.js?v=halloween-spider-1';
 import { exportAll, importAll, wipeAll } from '../store.js';
 import { confirmDialog, el, toast } from '../ui.js';
 import { go } from '../main.js';
