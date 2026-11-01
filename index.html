@@ -1,82 +1,28 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111016">
-  <meta name="description" content="RP Tavern — закрытые ролевые истории с персонажами SillyTavern.">
-  <title>RP Tavern — ролевые истории</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=mobile-nav-3">
+    <meta charset="utf-8">
+    <title>RP Tavern</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#160d0c">
+    <meta name="description" content="Таверна ролевых бесед с ИИ-персонажами. Только для совершеннолетних.">
+    <meta name="robots" content="noindex">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https: http://localhost:* http://127.0.0.1:*; base-uri 'none'; form-action 'none'">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M6 30V14a10 10 0 0120 0v16z' fill='%23f07a3a'/%3E%3Cpath d='M16 10c3 4 4 6 4 9a4 4 0 01-8 0c0-3 1-5 4-9z' fill='%23fff0c4'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Alegreya:ital,wght@0,400;0,500;1,400&family=Yeseva+One&display=swap&subset=cyrillic">
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script type="module" src="js/main.js"></script>
 </head>
 <body>
-  <main id="gate" class="gate">
-    <a class="brand" href="#"><span class="brand-mark">R</span> RP TAVERN</a>
-    <section class="gate-card">
-      <h1>Твоя история<br><em>начинается здесь.</em></h1>
-      <p class="muted">Подтверди возраст и введи выданный код доступа.</p>
-      <form id="login-form">
-        <label class="age-label"><input id="adult" type="checkbox"><span>Мне исполнилось 18 лет</span></label>
-        <label class="field-label" for="code">КОД ДОСТУПА</label><input class="text-field" id="code" type="password" placeholder="Введи свой код" autocomplete="one-time-code" required>
-        <p class="error" id="login-error" aria-live="polite"></p><button class="primary wide" type="submit">Войти <span>↗</span></button>
-      </form>
-      <section class="tariff-prompt" aria-label="Тарифы доступа">
-        <div class="tariff-prompt-head"><span class="tariff-spark">✦</span><div><b>Нужен код доступа?</b><small>Выбери тариф для ролевых историй</small></div></div>
-        <div class="tariff-quick-prices"><span>День <b>120 ₸</b></span><span>Неделя <b>770 ₸</b></span><span>Месяц <b>2 790 ₸</b></span></div>
-        <button type="button" class="tariff-open" id="tariffs-open">Посмотреть тарифы <span>↗</span></button>
-      </section>
-      <button type="button" class="gate-connect" id="api-settings-open">Настроить адрес сервера</button>
-    </section><footer class="gate-foot">RP TAVERN · SILLYTAVERN</footer>
-  </main>
-
-  <div id="app" class="app hidden">
-    <aside class="sidebar" id="sidebar">
-      <div class="side-head"><a class="brand" href="#"><span class="brand-mark">R</span> RP TAVERN</a><button class="icon-button mobile-close" id="close-sidebar" aria-label="Закрыть меню">×</button></div>
-      <div class="side-section-title">ТВОИ ИСТОРИИ <span id="bot-count">0</span></div>
-      <div id="bot-list" class="bot-list"></div>
-      <button class="add-small" id="add-bot-side">＋ Добавить бота</button>
-      <div class="side-spacer"></div>
-      <button class="settings-button" id="api-settings">⚙ Настроить сервер</button>
-      <button class="settings-button logout-button" id="logout">↪ Выйти</button>
-      <div class="user-chip"><span class="avatar user-avatar">Я</span><span><b>Мой профиль</b><small>18+</small></span></div>
-    </aside>
-    <main class="main-area">
-      <header class="app-header"><button class="icon-button mobile-menu" id="open-sidebar" aria-label="Открыть меню">☰</button><div><span class="header-title" id="header-title">Ролевые истории</span></div><div class="header-actions"><button class="secondary" id="api-settings-top">Подключение</button><button class="primary" id="add-bot">＋ <span>Добавить бота</span></button></div></header>
-      <section class="workspace">
-        <div id="empty-state" class="empty-state"><div class="orb">✦</div><h1>Кого встретим<br><em>сегодня?</em></h1><p>Создай персонажа или выбери историю слева.</p><button class="primary" id="empty-create">＋ Добавить бота</button></div>
-        <section id="chat-view" class="chat-view hidden">
-          <div class="chat-person"><button class="chat-back" id="chat-back" type="button" aria-label="Назад к выбору бота">←</button><span class="avatar bot-avatar" id="chat-avatar">✦</span><div class="chat-person-title"><h2 id="chat-name"></h2><span class="online-label"><i></i> Ролевая история</span></div><button class="delete-character" id="delete-bot" type="button" hidden>Удалить бота</button></div>
-          <div id="messages" class="messages"></div><form id="message-form" class="composer"><textarea id="message-input" rows="1" placeholder="Напиши сообщение..." aria-label="Сообщение"></textarea><button class="send-button" type="submit" aria-label="Отправить или пропустить ход">↑</button></form><div class="composer-note">Enter или стрелка без текста — пропустить ход. Не отправляй личные данные.</div>
-        </section>
-      </section>
+    <main id="app" aria-live="off">
+        <div class="boot" aria-label="Загрузка">
+            <div class="flame" aria-hidden="true"></div>
+        </div>
     </main>
-  </div>
-
-  <dialog id="bot-dialog" class="modal"><form id="bot-form" method="dialog"><div class="modal-head"><div><div class="kicker">НОВЫЙ ПЕРСОНАЖ</div><h2>Добавить бота</h2></div><button class="icon-button modal-close" type="button" data-close="bot-dialog">×</button></div>
-    <label class="field-label" for="bot-name">ИМЯ</label><input class="text-field" id="bot-name" maxlength="80" placeholder="Например, Лея" required>
-    <label class="field-label" for="bot-photo">ФОТО ПЕРСОНАЖА</label>
-    <label class="photo-picker" for="bot-photo"><img id="bot-photo-preview" alt="Предпросмотр фото персонажа" hidden><span id="bot-photo-placeholder" class="photo-placeholder">＋</span><span><b id="bot-photo-label">Добавить фотографию</b><small>JPG, PNG или WebP · до 10 МБ</small></span></label>
-    <input id="bot-photo" class="photo-input" type="file" accept="image/jpeg,image/png,image/webp">
-    <label class="field-label" for="bot-desc">ОПИСАНИЕ</label><textarea class="text-field description-field" id="bot-desc" maxlength="8000" placeholder="Внешность, прошлое, мир и особенности персонажа" required></textarea>
-    <label class="field-label" for="bot-personality">ХАРАКТЕР</label><textarea class="text-field description-field short" id="bot-personality" maxlength="4000" placeholder="Манера речи, привычки, отношение к собеседнику"></textarea>
-    <label class="field-label" for="bot-scenario">СЦЕНАРИЙ</label><textarea class="text-field description-field short" id="bot-scenario" maxlength="4000" placeholder="Где и при каких обстоятельствах начинается ролка"></textarea>
-    <label class="field-label" for="bot-greeting">ПЕРВОЕ СООБЩЕНИЕ</label><textarea class="text-field description-field short" id="bot-greeting" maxlength="4000" placeholder="Начало вашей истории"></textarea>
-    <p class="modal-note">Персонаж создаётся в SillyTavern на сервере и сохраняется в твоём профиле.</p><div class="modal-actions"><button class="secondary" type="button" data-close="bot-dialog">Отмена</button><button class="primary" type="submit" id="create-bot-button">Создать бота</button></div><p class="error" id="bot-error" aria-live="polite"></p>
-  </form></dialog>
-  <dialog id="settings-dialog" class="modal"><form id="settings-form" method="dialog"><div class="modal-head"><div><div class="kicker">СЕРВЕР RP TAVERN</div><h2>Подключение</h2></div><button class="icon-button modal-close" type="button" data-close="settings-dialog">×</button></div>
-    <p class="muted">Укажи адрес API сервера. Если открыт сайт через туннель Cloudflare, его адрес можно добавить как <code>?api=https://твой-туннель.trycloudflare.com</code> к адресу сайта.</p>
-    <label class="field-label" for="api-url">АДРЕС API</label><input class="text-field" id="api-url" type="url" placeholder="https://твой-туннель.trycloudflare.com">
-    <p class="modal-note warn">Не публикуй открытый сервер без защиты кодом доступа. Настройка сохраняется в этом браузере.</p><div class="modal-actions"><button class="secondary" type="button" data-close="settings-dialog">Отмена</button><button class="primary" type="submit">Сохранить</button></div>
-  </form></dialog>
-  <dialog id="tariff-dialog" class="modal tariff-dialog"><section>
-    <div class="modal-head"><div><div class="kicker">ДОСТУП К РОЛЕВЫМ ИСТОРИЯМ</div><h2>Выбери тариф</h2></div><button class="icon-button modal-close" type="button" data-close="tariff-dialog">×</button></div>
-    <p class="muted tariff-lead">Выбери срок доступа. После подтверждения оплаты понадобится код для входа.</p>
-    <div class="tariff-options">
-      <article class="tariff-option"><span class="tariff-period">НА ДЕНЬ</span><strong>120 <small>₸</small></strong><span class="tariff-duration">24 часа доступа</span><button type="button" class="secondary tariff-select" data-tariff="День" data-price="120 ₸">Выбрать</button></article>
-      <article class="tariff-option featured"><span class="tariff-badge">ПОПУЛЯРНЫЙ</span><span class="tariff-period">НА НЕДЕЛЮ</span><strong>770 <small>₸</small></strong><span class="tariff-duration">7 дней доступа</span><button type="button" class="primary tariff-select" data-tariff="Неделя" data-price="770 ₸">Выбрать</button></article>
-      <article class="tariff-option"><span class="tariff-period">НА МЕСЯЦ</span><strong>2 790 <small>₸</small></strong><span class="tariff-duration">30 дней доступа</span><button type="button" class="secondary tariff-select" data-tariff="Месяц" data-price="2 790 ₸">Выбрать</button></article>
-    </div>
-    <p class="tariff-result" id="tariff-result" role="status" aria-live="polite">Онлайн-оплата и автоматическая выдача кода пока не подключены.</p>
-  </section></dialog>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=reply-swipe-1"></script>
-</body></html>
+    <div id="toasts" aria-live="polite"></div>
+    <noscript><p style="padding:24px;color:#f3e4c8">Для работы RP Tavern нужен JavaScript.</p></noscript>
+</body>
+</html>

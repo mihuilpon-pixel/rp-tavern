@@ -1,0 +1,33 @@
+# RP Tavern
+
+RP Tavern is a responsive role-play chat site for SillyTavern characters. GitHub Pages serves the public interface; the Node.js bridge on the owner's PC sends generation requests to SillyTavern. The redesigned interface includes a character hall, profile and character editor, saved chats, message editing and deletion, alternate replies, and swipe-to-regenerate on phones.
+
+## Start the local services on Windows
+
+1. Start SillyTavern and connect its API and model. The default address is `http://127.0.0.1:8000`.
+2. In PowerShell, start the bridge from the project folder:
+
+   ```powershell
+   cd "C:\Users\мишко\AppData\Local\Cline\tavern-site"
+   node server.js
+   ```
+
+   On first launch, the server creates `config.local.json` and prints the access code in this window. Keep this file private.
+3. In a second PowerShell window, start Cloudflare Tunnel:
+
+   ```powershell
+   cloudflared tunnel --url http://127.0.0.1:3000
+   ```
+
+   Keep both windows open. Copy the `https://…trycloudflare.com` URL from the Tunnel window.
+4. Open [RP Tavern](https://mihuilpon-pixel.github.io/rp-tavern/), confirm you are 18+, enter the Tunnel URL and access code.
+
+If the Quick Tunnel address changes, enter the new address in the site's settings. For a shareable link, append `?server=https://YOUR-TUNNEL.trycloudflare.com` to the site URL.
+
+## Publish the website
+
+The repository's GitHub Pages source should be set to branch `main`, folder `/ (root)`. The static site files are at the repository root. Never commit `config.local.json` or API credentials.
+
+## Data and privacy
+
+Characters and chat history are stored in IndexedDB in each visitor's browser; they do not automatically sync between devices. Generation requests go through the local Node.js bridge to SillyTavern and its configured model. The server does not save chat text.

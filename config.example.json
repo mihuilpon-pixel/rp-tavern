@@ -1,0 +1,8 @@
+{
+    "accessCode": "придумайте-свой-код",
+    "port": 3000,
+    "sillyTavernUrl": "http://127.0.0.1:8000",
+    "allowedOrigins": ["https://*.github.io", "http://localhost:*", "http://127.0.0.1:*"],
+    "sillyTavernBasicAuth": { "user": "", "password": "" },
+    "generation": { "maxTokens": 600, "temperature": 0.9 }
+}
