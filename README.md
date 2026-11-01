@@ -32,6 +32,8 @@ RP Tavern is a responsive role-play chat site for SillyTavern characters. GitHub
    Keep both windows open. Copy the `https://…trycloudflare.com` URL from the Tunnel window.
 4. Open [RP Tavern](https://mihuilpon-pixel.github.io/rp-tavern/), confirm you are 18+, enter the Tunnel URL and access code.
 
+The admin page is at `/admin.html`. Its separate code is printed by Node.js and stored privately as `adminCode` in `config.local.json`. The panel lists sessions connected since the current server start and can revoke any one of them. Restarting Node.js ends all listed sessions; users can sign in again, and their browser chat histories remain local.
+
 If the Quick Tunnel address changes, enter the new address in the site's settings. For a shareable link, append `?server=https://YOUR-TUNNEL.trycloudflare.com` to the site URL.
 
 ## Publish the website

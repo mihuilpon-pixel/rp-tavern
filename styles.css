@@ -541,3 +541,18 @@ textarea.field-input { resize: vertical; font-family: var(--font-read); font-siz
     *, *::before, *::after { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; transition-duration: 0.001s !important; scroll-behavior: auto !important; }
     ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
+.admin-body { max-width: 760px; }
+.admin-session-list { display: grid; gap: 12px; }
+.admin-session { display: flex; flex-direction: column; gap: 13px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--oak-2); }
+.admin-device { display: flex; align-items: flex-start; gap: 10px; }
+.admin-device h2 { margin: 0 0 3px; }
+.admin-device .field-hint { overflow-wrap: anywhere; }
+.admin-state { width: 9px; height: 9px; flex: none; margin-top: 7px; border-radius: 50%; background: var(--muted); }
+.admin-state[data-state='active'] { background: var(--ok); box-shadow: 0 0 9px color-mix(in srgb, var(--ok), transparent 45%); }
+.admin-session-details { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); font-size: 14px; }
+.admin-badge { color: var(--ok); }
+.admin-session .btn { align-self: flex-start; }
+@media (max-width: 520px) {
+    .admin-session { padding: 14px 12px; }
+    .admin-session .btn { width: 100%; }
+}

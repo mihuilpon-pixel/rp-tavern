@@ -1,5 +1,5 @@
 // The way in: age question, then the access code. The door swings open on success.
-import { checkConnection, getServer, login, normalizeServerUrl } from '../api.js';
+import { checkConnection, getServer, login, normalizeServerUrl } from '../api.js?v=admin-panel-1';
 import { el, reducedMotion } from '../ui.js';
 
 const AGE_KEY = 'rpt.age';

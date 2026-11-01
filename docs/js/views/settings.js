@@ -1,4 +1,4 @@
-import { checkConnection, describeLink, getLink, getServer, normalizeServerUrl, onLinkChange, setServer, setToken } from '../api.js';
+import { checkConnection, describeLink, getLink, getServer, logoutSession, normalizeServerUrl, onLinkChange, setServer, setToken } from '../api.js?v=admin-panel-1';
 import { exportAll, importAll, wipeAll } from '../store.js';
 import { confirmDialog, el, toast } from '../ui.js';
 import { go } from '../main.js';
@@ -111,6 +111,11 @@ export async function renderSettings() {
         el('div.settings-body',
             serverForm,
             el('section.settings-card',
+                el('h2.eyebrow', 'Администрирование'),
+                el('p.field-hint', 'Просматривай вошедшие устройства и завершай отдельные сеансы.'),
+                el('div.card-actions',
+                    el('a.btn.ghost', { href: 'admin.html' }, 'Открыть панель администратора'))),
+            el('section.settings-card',
                 el('h2.eyebrow', 'Вы'),
                 el('label.field', { htmlFor: 's-name' },
                     el('span.field-label', 'Как к вам обращаться'),
@@ -152,7 +157,8 @@ export async function renderSettings() {
                 el('div.card-actions',
                     el('button.btn.ghost', {
                         type: 'button',
-                        onclick: () => {
+                        onclick: async () => {
+                            try { await logoutSession(); } catch { /* local sign-out still works offline */ }
                             setToken('');
                             go('/door');
                         },

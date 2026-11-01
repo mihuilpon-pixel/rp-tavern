@@ -113,6 +113,30 @@ test('protected routes need a valid token and a changed code invalidates it', as
     assert.equal((await fetch(`http://127.0.0.1:${port}/api/session`, { headers: { Authorization: `Bearer ${token}` } })).status, 401);
 });
 
+test('admin can list active sessions and revoke one', async (t) => {
+    const { base, login } = await setup({}, t, { adminCode: 'admin-secret' });
+    const userToken = await login();
+    const adminLogin = await fetch(`${base}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: 'admin-secret' }),
+    });
+    assert.equal(adminLogin.status, 200);
+    const { token: adminToken } = await adminLogin.json();
+    const headers = { Authorization: `Bearer ${adminToken}` };
+
+    const listed = await fetch(`${base}/api/admin/sessions`, { headers });
+    assert.equal(listed.status, 200);
+    const { sessions } = await listed.json();
+    assert.equal(sessions.length, 1);
+    assert.equal(sessions[0].codeHint, 'same');
+
+    const revoked = await fetch(`${base}/api/admin/sessions/${sessions[0].id}`, { method: 'DELETE', headers });
+    assert.equal(revoked.status, 200);
+    assert.equal((await fetch(`${base}/api/session`, { headers: { Authorization: `Bearer ${userToken}` } })).status, 401);
+    assert.equal((await (await fetch(`${base}/api/admin/sessions`, { headers })).json()).sessions.length, 0);
+});
+
 test('generation streams through a job and the request reaches SillyTavern', async (t) => {
     const { base, login, calls } = await setup({ generate: (req, res) => streamWords(res, ['Добро ', 'пожаловать']) }, t);
     const token = await login();

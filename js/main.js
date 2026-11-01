@@ -1,11 +1,11 @@
-import { getToken, normalizeServerUrl, setServer, startHeartbeat, verifySession } from './api.js';
+import { getToken, normalizeServerUrl, setServer, startHeartbeat, verifySession } from './api.js?v=admin-panel-1';
 import { seedIfFirstRun } from './store.js';
 import { el, reducedMotion, toast } from './ui.js';
 import { ageConfirmed, renderDoor } from './views/door.js';
 import { renderHall } from './views/hall.js';
 import { renderEditor } from './views/editor.js';
 import { renderChat } from './views/chat.js';
-import { renderSettings } from './views/settings.js';
+import { renderSettings } from './views/settings.js?v=admin-panel-1';
 
 const app = document.getElementById('app');
 let cleanup = null;

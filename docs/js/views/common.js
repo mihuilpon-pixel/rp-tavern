@@ -1,5 +1,5 @@
 // Pieces shared by several screens.
-import { checkConnection, describeLink, getLink, onLinkChange } from '../api.js';
+import { checkConnection, describeLink, getLink, onLinkChange } from '../api.js?v=admin-panel-1';
 import { el, icon, openSheet } from '../ui.js';
 
 export function linkStatusPanel(close) {

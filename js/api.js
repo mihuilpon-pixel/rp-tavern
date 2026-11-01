@@ -154,7 +154,10 @@ let heartbeat = null;
 export function startHeartbeat() {
     if (heartbeat) return;
     const beat = () => {
-        if (document.visibilityState === 'visible') checkConnection();
+        if (document.visibilityState === 'visible') {
+            checkConnection();
+            if (getToken()) verifySession().catch(() => {});
+        }
     };
     heartbeat = setInterval(beat, 25000);
     document.addEventListener('visibilitychange', beat);
@@ -213,6 +216,45 @@ export async function login(server, code) {
 
 export function verifySession() {
     return request('GET', '/api/session');
+}
+
+export function logoutSession() {
+    return request('DELETE', '/api/session');
+}
+
+async function adminRequest(method, path, body, token = '') {
+    const server = getServer();
+    if (!server) throw new ApiError('UNSET', LINK_MESSAGES.unset.text);
+    let response;
+    try {
+        response = await fetch(`${server}${path}`, {
+            method,
+            cache: 'no-store',
+            headers: {
+                ...(body ? { 'Content-Type': 'application/json' } : {}),
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: body ? JSON.stringify(body) : undefined,
+            signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
+    } catch {
+        throw new ApiError('NETWORK', 'Не удалось связаться с сервером. Проверь адрес туннеля.');
+    }
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new ApiError(data?.error?.code || 'ADMIN_ERROR', data?.error?.message || 'Ошибка панели администратора.', response.status);
+    return data;
+}
+
+export function adminLogin(code) {
+    return adminRequest('POST', '/api/admin/login', { code });
+}
+
+export function getAdminSessions(token) {
+    return adminRequest('GET', '/api/admin/sessions', undefined, token);
+}
+
+export function endAdminSession(token, sessionId) {
+    return adminRequest('DELETE', `/api/admin/sessions/${encodeURIComponent(sessionId)}`, undefined, token);
 }
 
 export function startGeneration(payload) {

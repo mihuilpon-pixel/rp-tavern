@@ -11,6 +11,7 @@ const CONFIG_PATH = process.env.RPT_CONFIG || path.join(__dirname, 'config.local
 const DOCS_DIR = ['public', 'docs'].map((folder) => path.join(__dirname, folder)).find((folder) => fs.existsSync(folder)) || __dirname;
 
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const ADMIN_TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
 const MAX_BODY_BYTES = 1024 * 1024;
 const MAX_CONTEXT_CHARS = 24000;
 const MAX_ACTIVE_JOBS = 4;
@@ -83,6 +84,10 @@ function loadConfig(configPath = CONFIG_PATH) {
         config.secret = crypto.randomBytes(32).toString('hex');
         created = true;
     }
+    if (!config.adminCode) {
+        config.adminCode = crypto.randomBytes(12).toString('base64url');
+        created = true;
+    }
     if (created) {
         fs.writeFileSync(configPath, JSON.stringify(config, null, 4));
     }
@@ -116,8 +121,8 @@ function tokenAccessCodes(config) {
     return [...new Set([...configuredAccessCodes(config), ...oneTimeAccessCodes(config), ...redeemed])];
 }
 
-function signToken(config, accessCode = config.accessCode) {
-    const payload = Buffer.from(JSON.stringify({ exp: Date.now() + TOKEN_TTL_MS })).toString('base64url');
+function signToken(config, accessCode, sessionId) {
+    const payload = Buffer.from(JSON.stringify({ exp: Date.now() + TOKEN_TTL_MS, sid: sessionId })).toString('base64url');
     return `${payload}.${tokenSignature(config, payload, accessCode)}`;
 }
 
@@ -131,12 +136,32 @@ function safeEqual(a, b) {
     return crypto.timingSafeEqual(hashA, hashB);
 }
 
-function tokenValid(config, token) {
+function tokenPayload(config, token) {
     if (typeof token !== 'string' || !token.includes('.')) return false;
     const [payload, signature] = token.split('.');
-    if (!tokenAccessCodes(config).some((code) => safeEqual(signature, tokenSignature(config, payload, code)))) return false;
+    if (!tokenAccessCodes(config).some((code) => safeEqual(signature, tokenSignature(config, payload, code)))) return null;
     try {
-        return JSON.parse(Buffer.from(payload, 'base64url').toString()).exp > Date.now();
+        const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+        return data.exp > Date.now() && typeof data.sid === 'string' ? data : null;
+    } catch {
+        return null;
+    }
+}
+
+function signAdminToken(config) {
+    const payload = Buffer.from(JSON.stringify({ exp: Date.now() + ADMIN_TOKEN_TTL_MS, role: 'admin' })).toString('base64url');
+    const signature = crypto.createHmac('sha256', `${config.secret}:admin:${config.adminCode}`).update(payload).digest('base64url');
+    return `${payload}.${signature}`;
+}
+
+function adminTokenValid(config, token) {
+    if (typeof token !== 'string' || !token.includes('.')) return false;
+    const [payload, signature] = token.split('.');
+    const expected = crypto.createHmac('sha256', `${config.secret}:admin:${config.adminCode}`).update(payload).digest('base64url');
+    if (!safeEqual(signature, expected)) return false;
+    try {
+        const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+        return data.role === 'admin' && data.exp > Date.now();
     } catch {
         return false;
     }
@@ -510,6 +535,7 @@ function createApp(config, { configPath = null } = {}) {
     const st = createSillyTavernClient(config);
     const jobStore = createJobStore();
     const fails = new Map();
+    const sessions = new Map();
     let totalFails = [];
     const allowedOrigins = config.allowedOrigins || DEFAULT_ORIGINS;
 
@@ -550,9 +576,18 @@ function createApp(config, { configPath = null } = {}) {
 
     function requireAuth(req) {
         const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-        if (!tokenValid(config, token)) {
-            throw new ApiError(401, 'UNAUTHORIZED', 'Сессия устарела. Введите код доступа заново.');
+        const payload = tokenPayload(config, token);
+        const session = payload ? sessions.get(payload.sid) : null;
+        if (!session || session.expiresAt <= Date.now()) {
+            throw new ApiError(401, 'UNAUTHORIZED', 'Session expired. Enter the access code again.');
         }
+        session.lastSeenAt = Date.now();
+        return session;
+    }
+
+    function requireAdmin(req) {
+        const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+        if (!adminTokenValid(config, token)) throw new ApiError(401, 'ADMIN_UNAUTHORIZED', 'Admin session expired. Enter the admin code again.');
     }
 
     function sendJson(res, status, body) {
@@ -645,7 +680,8 @@ function createApp(config, { configPath = null } = {}) {
                 recordLoginFail(req);
                 throw new ApiError(403, 'BAD_CODE', 'Неверный код доступа.');
             }
-            if (oneTimeAccessCodes(config).includes(accessCode)) {
+            const isOneTimeCode = oneTimeAccessCodes(config).includes(accessCode);
+            if (isOneTimeCode) {
                 const nextOneTime = oneTimeAccessCodes(config).filter((candidate) => candidate !== accessCode);
                 const nextRedeemed = [...(config.redeemedAccessCodes || []).filter((entry) => Number(entry?.expiresAt) > Date.now()), {
                     code: accessCode,
@@ -657,11 +693,64 @@ function createApp(config, { configPath = null } = {}) {
                 config.oneTimeAccessCodes = nextOneTime;
                 config.redeemedAccessCodes = nextRedeemed;
             }
-            return sendJson(res, 200, { token: signToken(config, accessCode) });
+            const sessionId = crypto.randomUUID();
+            const now = Date.now();
+            sessions.set(sessionId, {
+                id: sessionId,
+                createdAt: now,
+                lastSeenAt: now,
+                expiresAt: now + TOKEN_TTL_MS,
+                codeHint: accessCode.slice(-4),
+                codeType: isOneTimeCode ? 'tester' : 'access',
+                userAgent: String(req.headers['user-agent'] || 'Unknown device').slice(0, 180),
+            });
+            return sendJson(res, 200, { token: signToken(config, accessCode, sessionId) });
+        }
+
+        if (pathname === '/api/admin/login' && req.method === 'POST') {
+            checkLoginLimit(req);
+            const { code } = await readJson(req);
+            if (typeof code !== 'string' || !safeEqual(code.trim(), config.adminCode)) {
+                recordLoginFail(req);
+                throw new ApiError(403, 'BAD_ADMIN_CODE', 'Неверный код администратора.');
+            }
+            return sendJson(res, 200, { token: signAdminToken(config), expiresIn: ADMIN_TOKEN_TTL_MS });
+        }
+
+        if (pathname === '/api/admin/sessions' && req.method === 'GET') {
+            requireAdmin(req);
+            const now = Date.now();
+            const active = [...sessions.values()]
+                .filter((session) => session.expiresAt > now)
+                .sort((a, b) => b.lastSeenAt - a.lastSeenAt)
+                .map((session) => ({
+                    id: session.id,
+                    createdAt: session.createdAt,
+                    lastSeenAt: session.lastSeenAt,
+                    expiresAt: session.expiresAt,
+                    codeHint: session.codeHint,
+                    codeType: session.codeType,
+                    userAgent: session.userAgent,
+                    active: now - session.lastSeenAt < 120000,
+                }));
+            return sendJson(res, 200, { sessions: active });
+        }
+
+        const adminSessionMatch = pathname.match(/^\/api\/admin\/sessions\/([\w-]+)$/);
+        if (adminSessionMatch && req.method === 'DELETE') {
+            requireAdmin(req);
+            if (!sessions.delete(adminSessionMatch[1])) throw new ApiError(404, 'SESSION_NOT_FOUND', 'Сеанс не найден или уже завершён.');
+            return sendJson(res, 200, { ok: true });
         }
 
         if (pathname === '/api/session' && req.method === 'GET') {
             requireAuth(req);
+            return sendJson(res, 200, { ok: true });
+        }
+
+        if (pathname === '/api/session' && req.method === 'DELETE') {
+            const session = requireAuth(req);
+            sessions.delete(session.id);
             return sendJson(res, 200, { ok: true });
         }
 
@@ -738,6 +827,7 @@ function main() {
             console.log(`One-time test codes (${oneTimeAccessCodes(config).length}):`);
             oneTimeAccessCodes(config).forEach((code, index) => console.log(`  ${index + 1}. ${code}`));
         }
+        console.log(`Admin panel code: ${config.adminCode}`);
         console.log(`Туннель:     cloudflared tunnel --url http://127.0.0.1:${port}`);
         try {
             await st.ping();
