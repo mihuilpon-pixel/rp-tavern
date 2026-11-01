@@ -17,6 +17,7 @@ let bots = [];
 let currentBot = null;
 let requestBusy = false;
 let toastTimer;
+let botPhotoData = '';
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -71,7 +72,10 @@ function renderBots() {
     const button = document.createElement('button');
     button.className = `bot-item${currentBot === bot.id ? ' active' : ''}`;
     button.type = 'button';
-    button.innerHTML = `<span class="avatar bot-avatar ${bots.indexOf(bot)%2?'alt':''}">${escapeHtml((bot.name || '?').slice(0,1).toUpperCase())}</span><span class="bot-text"><b>${escapeHtml(bot.name)}</b><small>${escapeHtml(bot.description || 'Персонаж SillyTavern')}</small></span>`;
+    const avatar = bot.avatar
+      ? `<span class="avatar bot-avatar has-photo"><img src="${escapeHtml(bot.avatar)}" alt=""></span>`
+      : `<span class="avatar bot-avatar ${bots.indexOf(bot)%2?'alt':''}">${escapeHtml((bot.name || '?').slice(0,1).toUpperCase())}</span>`;
+    button.innerHTML = `${avatar}<span class="bot-text"><b>${escapeHtml(bot.name)}</b><small>${escapeHtml(bot.description || 'Персонаж SillyTavern')}</small></span>`;
     button.addEventListener('click', () => selectBot(bot.id));
     list.append(button);
   }
@@ -84,8 +88,12 @@ async function selectBot(id) {
   const bot = bots.find(item => item.id === id); if (!bot) return;
   currentBot = id; renderBots(); $('#empty-state').classList.add('hidden'); $('#chat-view').classList.remove('hidden');
   $('#delete-bot').hidden = !bot.stName;
-  $('#chat-name').textContent = bot.name; $('#chat-avatar').textContent = (bot.name || '?').slice(0,1).toUpperCase();
-  $('#chat-avatar').className = `avatar bot-avatar ${bots.indexOf(bot)%2?'alt':''}`; $('#header-title').textContent = bot.name;
+  $('#chat-name').textContent = bot.name;
+  $('#chat-avatar').className = `avatar bot-avatar ${bots.indexOf(bot)%2?'alt':''}${bot.avatar?' has-photo':''}`;
+  $('#chat-avatar').replaceChildren();
+  if (bot.avatar) { const image = document.createElement('img'); image.src = bot.avatar; image.alt = ''; $('#chat-avatar').append(image); }
+  else $('#chat-avatar').textContent = (bot.name || '?').slice(0,1).toUpperCase();
+  $('#header-title').textContent = bot.name;
   $('#messages').replaceChildren();
   try {
     const messages = await api(`/api/chat/${encodeURIComponent(id)}`);
@@ -132,6 +140,32 @@ document.querySelectorAll('.tariff-select').forEach(button => button.addEventLis
 }));
 ['#add-bot','#add-bot-side','#empty-create'].forEach(selector => $(selector).addEventListener('click', () => openDialog('#bot-dialog')));
 document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => $('#' + button.dataset.close).close()));
+
+$('#bot-photo').addEventListener('change', async event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  $('#bot-error').textContent = '';
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    $('#bot-error').textContent = 'Выбери изображение JPG, PNG или WebP.'; event.target.value = ''; return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    $('#bot-error').textContent = 'Размер изображения должен быть не больше 10 МБ.'; event.target.value = ''; return;
+  }
+  try {
+    const source = await createImageBitmap(file);
+    const edge = Math.min(source.width, source.height);
+    const canvas = document.createElement('canvas'); canvas.width = canvas.height = 512;
+    const context = canvas.getContext('2d');
+    context.drawImage(source, (source.width - edge) / 2, (source.height - edge) / 2, edge, edge, 0, 0, 512, 512);
+    source.close();
+    botPhotoData = canvas.toDataURL('image/jpeg', 0.82);
+    $('#bot-photo-preview').src = botPhotoData; $('#bot-photo-preview').hidden = false;
+    $('#bot-photo-placeholder').hidden = true; $('#bot-photo-label').textContent = 'Изменить фотографию';
+  } catch {
+    $('#bot-error').textContent = 'Не удалось прочитать это изображение.'; event.target.value = '';
+  }
+});
+
 $('#bot-form').addEventListener('submit', async event => {
   event.preventDefault(); $('#bot-error').textContent = '';
   const form = event.currentTarget;
@@ -141,7 +175,10 @@ $('#bot-form').addEventListener('submit', async event => {
       name: $('#bot-name').value.trim(), description: $('#bot-desc').value.trim(),
       personality: $('#bot-personality').value.trim(), scenario: $('#bot-scenario').value.trim(),
       first_mes: $('#bot-greeting').value.trim(),
+      avatarData: botPhotoData,
     });
+    botPhotoData = ''; $('#bot-photo-preview').removeAttribute('src'); $('#bot-photo-preview').hidden = true;
+    $('#bot-photo-placeholder').hidden = false; $('#bot-photo-label').textContent = 'Добавить фотографию';
     form.reset(); $('#bot-dialog').close();
     bots.unshift(bot); renderBots(); await selectBot(bot.id); toast('Персонаж создан в SillyTavern.');
   } catch (error) { $('#bot-error').textContent = error.message; }

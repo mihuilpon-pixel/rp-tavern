@@ -54,6 +54,9 @@
 
   <dialog id="bot-dialog" class="modal"><form id="bot-form" method="dialog"><div class="modal-head"><div><div class="kicker">НОВЫЙ ПЕРСОНАЖ</div><h2>Добавить бота</h2></div><button class="icon-button modal-close" type="button" data-close="bot-dialog">×</button></div>
     <label class="field-label" for="bot-name">ИМЯ</label><input class="text-field" id="bot-name" maxlength="80" placeholder="Например, Лея" required>
+    <label class="field-label" for="bot-photo">ФОТО ПЕРСОНАЖА</label>
+    <label class="photo-picker" for="bot-photo"><img id="bot-photo-preview" alt="Предпросмотр фото персонажа" hidden><span id="bot-photo-placeholder" class="photo-placeholder">＋</span><span><b id="bot-photo-label">Добавить фотографию</b><small>JPG, PNG или WebP · до 10 МБ</small></span></label>
+    <input id="bot-photo" class="photo-input" type="file" accept="image/jpeg,image/png,image/webp">
     <label class="field-label" for="bot-desc">ОПИСАНИЕ</label><textarea class="text-field description-field" id="bot-desc" maxlength="8000" placeholder="Внешность, прошлое, мир и особенности персонажа" required></textarea>
     <label class="field-label" for="bot-personality">ХАРАКТЕР</label><textarea class="text-field description-field short" id="bot-personality" maxlength="4000" placeholder="Манера речи, привычки, отношение к собеседнику"></textarea>
     <label class="field-label" for="bot-scenario">СЦЕНАРИЙ</label><textarea class="text-field description-field short" id="bot-scenario" maxlength="4000" placeholder="Где и при каких обстоятельствах начинается ролка"></textarea>

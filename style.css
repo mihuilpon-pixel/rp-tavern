@@ -95,6 +95,18 @@ body:after{width:330px;height:330px;right:-145px;bottom:-90px;background:#19bdd0
 @media(max-width:540px){.tariff-dialog>section{padding:19px}.tariff-options{grid-template-columns:1fr}.tariff-option{min-height:140px}.tariff-quick-prices{gap:4px}.tariff-quick-prices span{font-size:9px}}
 @media(max-width:720px){.sidebar{background:linear-gradient(180deg,#111526f9,#171426f9)}.app-header{background:#121526e8}}
 
+/* Optional character portraits */
+.photo-input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.photo-picker{display:flex;align-items:center;gap:14px;min-height:80px;padding:10px 13px;border:1px dashed #80699a;border-radius:12px;background:#141525aa;color:var(--text);cursor:pointer;transition:border-color .18s,background .18s}
+.photo-picker:hover,.photo-input:focus-visible+.photo-picker{border-color:#d19bff;background:#be8aff12}
+.photo-picker>img,.photo-placeholder{width:56px;height:56px;flex:0 0 56px;border-radius:12px;object-fit:cover;background:linear-gradient(145deg,#694f80,#354e61);color:#f2d6ff}
+.photo-placeholder{display:grid;place-items:center;font-size:25px}
+.photo-picker b,.photo-picker small{display:block}
+.photo-picker b{font-size:11px;font-weight:600}
+.photo-picker small{margin-top:5px;color:#aaa4bc;font-size:9px}
+.bot-avatar.has-photo{overflow:hidden;padding:0;background:#252238}
+.bot-avatar.has-photo img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+
 /* Mobile layout fixes: fit the chat to the changing phone viewport and keep controls reachable. */
 @media(max-width:720px){
   .app{height:100vh;height:100dvh;min-height:0;overflow:hidden}
