@@ -120,6 +120,7 @@ body:after{width:330px;height:330px;right:-145px;bottom:-90px;background:#19bdd0
 .message-edit-actions .message-save{border-color:#b98e66;background:#c49a73;color:#211f1a}
 .message-edit-actions button:disabled{opacity:.6;cursor:wait}
 @media(max-width:720px){.message-actions{opacity:1}.message-actions button{min-width:36px;min-height:34px}}
+@media(max-width:720px){.sidebar{inset:0;width:100vw;max-width:100vw;flex-basis:100vw}.sidebar.open{transform:translateX(0)}.app-header .mobile-menu{width:40px;height:40px;font-size:25px;color:#e8dfd0}}
 
 /* Mobile layout fixes: fit the chat to the changing phone viewport and keep controls reachable. */
 @media(max-width:720px){

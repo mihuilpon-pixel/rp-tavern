@@ -61,8 +61,15 @@ $('#login-form').addEventListener('submit', async event => {
 async function loadBots() {
   try {
     bots = await api('/api/bots'); renderBots();
-    if (!bots.length) showEmpty();
-    else if (!currentBot || !bots.some(bot => bot.id === currentBot)) await selectBot(bots[0].id);
+    if (!bots.length) {
+      showEmpty();
+      if (window.innerWidth <= 720) $('#sidebar').classList.add('open');
+    } else if (!currentBot || !bots.some(bot => bot.id === currentBot)) {
+      if (window.innerWidth <= 720) {
+        showEmpty();
+        $('#sidebar').classList.add('open');
+      } else await selectBot(bots[0].id);
+    }
   } catch (error) { toast(error.message); }
 }
 function renderBots() {
@@ -91,11 +98,15 @@ function renderBots() {
 }
 function showEmpty() {
   currentBot = null; $('#chat-view').classList.add('hidden'); $('#empty-state').classList.remove('hidden');
-  $('#header-title').textContent = 'Ролевые истории'; renderBots();
+  $('#header-title').textContent = 'Ролевые истории';
+  $('#open-sidebar').textContent = '☰'; $('#open-sidebar').setAttribute('aria-label', 'Открыть меню выбора бота');
+  if (window.innerWidth <= 720) $('#sidebar').classList.add('open');
+  renderBots();
 }
 async function selectBot(id) {
   const bot = bots.find(item => item.id === id); if (!bot) return;
   currentBot = id; renderBots(); $('#empty-state').classList.add('hidden'); $('#chat-view').classList.remove('hidden');
+  $('#open-sidebar').textContent = '←'; $('#open-sidebar').setAttribute('aria-label', 'Вернуться к выбору бота');
   $('#delete-bot').hidden = !bot.stName;
   $('#chat-name').textContent = bot.name;
   $('#chat-avatar').className = `avatar bot-avatar ${bots.indexOf(bot)%2?'alt':''}${bot.avatar?' has-photo':''}`;
@@ -275,8 +286,17 @@ function logout(reload = true) {
   if (reload) location.reload(); else { $('#app').classList.add('hidden'); $('#gate').classList.remove('hidden'); }
 }
 $('#logout').addEventListener('click', () => logout());
-$('#open-sidebar').addEventListener('click', () => $('#sidebar').classList.add('open'));
-$('#close-sidebar').addEventListener('click', () => $('#sidebar').classList.remove('open'));
+$('#open-sidebar').addEventListener('click', () => {
+  if (window.innerWidth <= 720 && currentBot) {
+    $('#chat-view').classList.add('hidden'); $('#empty-state').classList.add('hidden');
+  }
+  $('#sidebar').classList.add('open');
+});
+$('#close-sidebar').addEventListener('click', () => {
+  $('#sidebar').classList.remove('open');
+  if (currentBot) { $('#empty-state').classList.add('hidden'); $('#chat-view').classList.remove('hidden'); }
+  else { $('#chat-view').classList.add('hidden'); $('#empty-state').classList.remove('hidden'); }
+});
 $('#api-settings-open').addEventListener('click', () => openDialog('#settings-dialog'));
 $('#api-settings').addEventListener('click', () => openDialog('#settings-dialog'));
 $('#api-settings-top').addEventListener('click', () => openDialog('#settings-dialog'));
