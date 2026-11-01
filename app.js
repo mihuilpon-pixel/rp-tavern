@@ -103,20 +103,71 @@ async function selectBot(id) {
   if (bot.avatar) { const image = document.createElement('img'); image.src = bot.avatar; image.alt = ''; $('#chat-avatar').append(image); }
   else $('#chat-avatar').textContent = (bot.name || '?').slice(0,1).toUpperCase();
   $('#header-title').textContent = bot.name;
-  $('#messages').replaceChildren();
-  try {
-    const messages = await api(`/api/chat/${encodeURIComponent(id)}`);
-    for (const message of messages) appendMessage(message.role, message.content, bot.name);
-  } catch (error) { appendMessage('system', error.message); }
+  await refreshMessages(id, bot.name);
   if (window.innerWidth <= 720) $('#sidebar').classList.remove('open');
 }
-function appendMessage(role, text, botName = '') {
+async function refreshMessages(botId = currentBot, botName = $('#chat-name').textContent) {
+  try {
+    const history = await api(`/api/chat/${encodeURIComponent(botId)}`);
+    if (currentBot !== botId) return;
+    $('#messages').replaceChildren();
+    history.forEach((message, index) => appendMessage(message.role, message.content, botName, index));
+    $('#messages').scrollTop = $('#messages').scrollHeight;
+  } catch (error) {
+    if (currentBot === botId) appendMessage('system', error.message);
+  }
+}
+function appendMessage(role, text, botName = '', messageIndex = null) {
   const node = document.createElement('div'); node.className = `message ${role === 'user' ? 'user' : role === 'assistant' ? 'assistant' : 'system'}`;
+  if (Number.isInteger(messageIndex)) node.dataset.messageIndex = String(messageIndex);
   if (role === 'assistant' && botName) {
     const sender = document.createElement('span'); sender.className = 'sender'; sender.textContent = botName; node.append(sender);
   }
-  node.append(document.createTextNode(String(text ?? ''))); $('#messages').append(node); $('#messages').scrollTop = $('#messages').scrollHeight;
+  const content = document.createElement('div'); content.className = 'message-content'; content.textContent = String(text ?? ''); node.append(content);
+  if ((role === 'user' || role === 'assistant') && Number.isInteger(messageIndex)) {
+    const actions = document.createElement('div'); actions.className = 'message-actions';
+    const edit = document.createElement('button'); edit.type = 'button'; edit.textContent = '✎'; edit.title = 'Редактировать'; edit.setAttribute('aria-label', 'Редактировать сообщение');
+    edit.addEventListener('click', () => editMessage(messageIndex, content, actions));
+    const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = '×'; remove.title = 'Удалить'; remove.setAttribute('aria-label', 'Удалить сообщение');
+    remove.addEventListener('click', () => removeMessage(messageIndex));
+    actions.append(edit, remove); node.append(actions);
+  }
+  $('#messages').append(node); $('#messages').scrollTop = $('#messages').scrollHeight;
   return node;
+}
+
+async function editMessage(index, content, actions) {
+  if (requestBusy || !currentBot || content.dataset.editing) return;
+  const botId = currentBot, oldText = content.textContent;
+  content.dataset.editing = 'true';
+  const editor = document.createElement('textarea'); editor.className = 'message-edit-input'; editor.maxLength = 20000; editor.value = oldText;
+  const controls = document.createElement('div'); controls.className = 'message-edit-actions';
+  const saveButton = document.createElement('button'); saveButton.type = 'button'; saveButton.className = 'message-save'; saveButton.textContent = 'Сохранить';
+  const cancelButton = document.createElement('button'); cancelButton.type = 'button'; cancelButton.className = 'message-cancel'; cancelButton.textContent = 'Отмена';
+  controls.append(saveButton, cancelButton); content.replaceChildren(editor, controls); actions.hidden = true; editor.focus();
+  cancelButton.addEventListener('click', () => refreshMessages(botId));
+  saveButton.addEventListener('click', async () => {
+    const text = editor.value.trim();
+    if (!text) { editor.focus(); return; }
+    saveButton.disabled = cancelButton.disabled = true;
+    try {
+      await api(`/api/chat/${encodeURIComponent(botId)}/${index}`, 'PATCH', {content: text});
+      await refreshMessages(botId);
+      toast('Сообщение изменено.');
+    } catch (error) {
+      saveButton.disabled = cancelButton.disabled = false; toast(error.message);
+    }
+  });
+}
+
+async function removeMessage(index) {
+  if (requestBusy || !currentBot) return;
+  const botId = currentBot;
+  if (!window.confirm('Удалить это сообщение из переписки?')) return;
+  try {
+    await api(`/api/chat/${encodeURIComponent(botId)}/${index}`, 'DELETE');
+    await refreshMessages(botId); toast('Сообщение удалено.');
+  } catch (error) { toast(error.message); }
 }
 
 async function deleteBot(id, trigger) {
@@ -202,15 +253,16 @@ $('#message-form').addEventListener('submit', async event => {
   event.preventDefault();
   const text = $('#message-input').value.trim();
   if (!text || !currentBot || requestBusy) return;
-  requestBusy = true; $('#message-input').value = '';
+  requestBusy = true; const botId = currentBot; $('#message-input').value = '';
   appendMessage('user', text);
   const pending = appendMessage('assistant', '…', $('#chat-name').textContent);
   const send = event.currentTarget.querySelector('button'); send.disabled = true;
   try {
-    const data = await api(`/api/chat/${encodeURIComponent(currentBot)}`, 'POST', {text});
-    pending.replaceChildren(); pending.append(document.createTextNode(data.reply || ''));
+    await api(`/api/chat/${encodeURIComponent(botId)}`, 'POST', {text});
+    await refreshMessages(botId);
   } catch (error) {
     pending.className = 'message system'; pending.textContent = `Не удалось получить ответ: ${error.message}`;
+    if (currentBot === botId) await refreshMessages(botId);
   } finally { requestBusy = false; send.disabled = false; $('#message-input').focus(); }
 });
 $('#message-input').addEventListener('keydown', event => {

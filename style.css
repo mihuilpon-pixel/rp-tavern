@@ -110,6 +110,16 @@ body:after{width:330px;height:330px;right:-145px;bottom:-90px;background:#19bdd0
 .bot-select{display:flex;flex:1;min-width:0;align-items:center;gap:11px;padding:6px 4px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit}
 .bot-delete{display:grid;width:32px;height:32px;flex:0 0 32px;place-items:center;border:1px solid #b8755b45;border-radius:8px;background:#b8755b12;color:#e0a58c;font-size:14px;cursor:pointer}
 .bot-delete:hover{border-color:#c47d63;background:#b8755b2b;color:#ffe1ce}
+.message-actions{display:flex;justify-content:flex-end;gap:6px;margin:7px -5px -5px;opacity:.72}
+.message-actions[hidden]{display:none}
+.message-actions button{min-width:30px;min-height:28px;padding:3px 8px;border:1px solid #ffffff20;border-radius:7px;background:#11130f38;color:#d8c9b5;font:12px 'Nunito Sans',sans-serif;cursor:pointer}
+.message-actions button:hover{border-color:#c49a73;background:#c49a731c;color:#fff0db}
+.message-edit-input{display:block;width:100%;min-height:88px;padding:9px;border:1px solid #8d755e;border-radius:8px;background:#171914;color:var(--text);font:inherit;line-height:1.55;resize:vertical}
+.message-edit-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:8px}
+.message-edit-actions button{min-height:32px;padding:4px 10px;border:1px solid #6c6554;border-radius:7px;background:#34372f;color:#e7e3d8;font:600 10px 'Nunito Sans',sans-serif;cursor:pointer}
+.message-edit-actions .message-save{border-color:#b98e66;background:#c49a73;color:#211f1a}
+.message-edit-actions button:disabled{opacity:.6;cursor:wait}
+@media(max-width:720px){.message-actions{opacity:1}.message-actions button{min-width:36px;min-height:34px}}
 
 /* Mobile layout fixes: fit the chat to the changing phone viewport and keep controls reachable. */
 @media(max-width:720px){
