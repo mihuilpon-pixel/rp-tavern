@@ -279,6 +279,39 @@ $('#message-input').addEventListener('keydown', event => {
   if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); $('#message-form').requestSubmit(); }
 });
 
+let replySwipeStart = null;
+$('#messages').addEventListener('touchstart', event => {
+  const message = event.target.closest('.message.assistant[data-message-index]');
+  if (!message || requestBusy || event.touches.length !== 1) { replySwipeStart = null; return; }
+  const lastReply = [...$('#messages').querySelectorAll('.message.assistant[data-message-index]')].at(-1);
+  if (message !== lastReply) { replySwipeStart = null; return; }
+  replySwipeStart = { x: event.touches[0].clientX, y: event.touches[0].clientY, message };
+}, { passive: true });
+$('#messages').addEventListener('touchend', async event => {
+  const start = replySwipeStart; replySwipeStart = null;
+  if (!start || requestBusy || !currentBot || event.changedTouches.length !== 1) return;
+  const dx = event.changedTouches[0].clientX - start.x;
+  const dy = event.changedTouches[0].clientY - start.y;
+  if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+
+  const botId = currentBot;
+  requestBusy = true;
+  const send = $('#message-form').querySelector('button[type="submit"]');
+  send.disabled = true;
+  toast('Генерирую другой ответ…');
+  try {
+    await api(`/api/chat/${encodeURIComponent(botId)}`, 'POST', {regenerate: true});
+    await refreshMessages(botId);
+  } catch (error) {
+    toast(error.message);
+    await refreshMessages(botId);
+  } finally {
+    requestBusy = false;
+    send.disabled = false;
+  }
+}, { passive: true });
+$('#messages').addEventListener('touchcancel', () => { replySwipeStart = null; }, { passive: true });
+
 function logout(reload = true) {
   token = ''; sessionStorage.removeItem('rp-session-token');
   if (reload) location.reload(); else { $('#app').classList.add('hidden'); $('#gate').classList.remove('hidden'); }

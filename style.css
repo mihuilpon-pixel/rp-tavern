@@ -256,3 +256,4 @@ body{font-family:'Nunito Sans',sans-serif;background:#202522;background-image:li
   .tariff-quick-prices span{padding-left:2px;padding-right:2px;font-size:9px}
   .tariff-quick-prices b{font-size:11px}
 }
+.message.assistant{touch-action:pan-y}
