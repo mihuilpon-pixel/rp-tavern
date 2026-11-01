@@ -251,8 +251,9 @@ $('#bot-form').addEventListener('submit', async event => {
 
 $('#message-form').addEventListener('submit', async event => {
   event.preventDefault();
-  const text = $('#message-input').value.trim();
-  if (!text || !currentBot || requestBusy) return;
+  const inputText = $('#message-input').value.trim();
+  if (!currentBot || requestBusy) return;
+  const text = inputText || '[Пропуск]';
   requestBusy = true; const botId = currentBot; $('#message-input').value = '';
   appendMessage('user', text);
   const pending = appendMessage('assistant', '…', $('#chat-name').textContent);
