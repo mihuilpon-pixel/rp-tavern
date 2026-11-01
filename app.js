@@ -69,15 +69,24 @@ function renderBots() {
   $('#bot-count').textContent = String(bots.length);
   const list = $('#bot-list'); list.replaceChildren();
   for (const bot of bots) {
-    const button = document.createElement('button');
-    button.className = `bot-item${currentBot === bot.id ? ' active' : ''}`;
-    button.type = 'button';
+    const item = document.createElement('div');
+    item.className = `bot-item${currentBot === bot.id ? ' active' : ''}`;
     const avatar = bot.avatar
       ? `<span class="avatar bot-avatar has-photo"><img src="${escapeHtml(bot.avatar)}" alt=""></span>`
       : `<span class="avatar bot-avatar ${bots.indexOf(bot)%2?'alt':''}">${escapeHtml((bot.name || '?').slice(0,1).toUpperCase())}</span>`;
-    button.innerHTML = `${avatar}<span class="bot-text"><b>${escapeHtml(bot.name)}</b><small>${escapeHtml(bot.description || 'Персонаж SillyTavern')}</small></span>`;
-    button.addEventListener('click', () => selectBot(bot.id));
-    list.append(button);
+    const select = document.createElement('button');
+    select.className = 'bot-select'; select.type = 'button';
+    select.innerHTML = `${avatar}<span class="bot-text"><b>${escapeHtml(bot.name)}</b><small>${escapeHtml(bot.description || 'Персонаж SillyTavern')}</small></span>`;
+    select.addEventListener('click', () => selectBot(bot.id));
+    item.append(select);
+    if (bot.stName) {
+      const remove = document.createElement('button');
+      remove.className = 'bot-delete'; remove.type = 'button'; remove.textContent = '🗑';
+      remove.title = `Удалить ${bot.name}`; remove.setAttribute('aria-label', `Удалить бота ${bot.name}`);
+      remove.addEventListener('click', () => deleteBot(bot.id, remove));
+      item.append(remove);
+    }
+    list.append(item);
   }
 }
 function showEmpty() {
@@ -110,21 +119,25 @@ function appendMessage(role, text, botName = '') {
   return node;
 }
 
-$('#delete-bot').addEventListener('click', async () => {
-  const bot = bots.find(item => item.id === currentBot);
+async function deleteBot(id, trigger) {
+  const bot = bots.find(item => item.id === id);
   if (!bot?.stName) return;
   if (!window.confirm(`Удалить «${bot.name}»? Карточка персонажа и её переписки также будут удалены из SillyTavern.`)) return;
-  const button = $('#delete-bot'); button.disabled = true;
+  const button = trigger || $('#delete-bot');
+  button.disabled = true;
   try {
     await api(`/api/bots/${encodeURIComponent(bot.id)}`, 'DELETE');
     bots = bots.filter(item => item.id !== bot.id);
-    currentBot = null;
-    if (bots.length) await selectBot(bots[0].id); else showEmpty();
+    if (currentBot === bot.id) {
+      currentBot = null;
+      if (bots.length) await selectBot(bots[0].id); else showEmpty();
+    } else renderBots();
     toast('Бот и его переписки удалены.');
   } catch (error) {
     toast(error.message);
   } finally { button.disabled = false; }
-});
+}
+$('#delete-bot').addEventListener('click', event => deleteBot(currentBot, event.currentTarget));
 
 function openDialog(id) { $(id).showModal(); }
 $('#tariffs-open').addEventListener('click', () => openDialog('#tariff-dialog'));
